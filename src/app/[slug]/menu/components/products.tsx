@@ -2,10 +2,10 @@
 
 import { Product } from "@prisma/client";
 import Image from "next/image";
-import { normalizeImageSrc } from "@/lib/images";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -14,8 +14,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-
 import { formatCurrency } from "@/helpers/format-currency";
+import { normalizeImageSrc } from "@/lib/images";
 
 interface ProductsProps {
   products: Array<Product & { videoUrl?: string | null }>;

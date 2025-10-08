@@ -3,11 +3,11 @@
 import { Restaurant } from "@prisma/client";
 import { ChevronLeftIcon, ScrollTextIcon } from "lucide-react";
 import Image from "next/image";
-import { normalizeImageSrc } from "@/lib/images";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { type CSSProperties,useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { normalizeImageSrc } from "@/lib/images";
 
 type GalleryImage = { imageUrl: string };
 
