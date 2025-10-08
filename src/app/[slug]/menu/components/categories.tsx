@@ -108,26 +108,27 @@ const CategoryCarousel = ({
 }) => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const viewportRef = useRef<HTMLElement | null>(null);
 
   const attachRoot = (node: HTMLDivElement | null) => {
     rootRef.current = node;
-    if (node) {
-      // Radix ScrollArea viewport element
-      viewportRef.current = node.querySelector(
-        "[data-radix-scroll-area-viewport]",
-      ) as HTMLElement | null;
-    } else {
-      viewportRef.current = null;
-    }
   };
 
-  const scrollByAmount = (dir: -1 | 1) => {
-    const viewport = viewportRef.current;
-    const node = viewport ?? scrollerRef.current; // fallback
-    if (!node) return;
-    const delta = dir * Math.round((node as HTMLElement).clientWidth * 0.9);
-    (node as HTMLElement).scrollBy({ left: delta, behavior: "smooth" });
+  const getViewport = (): HTMLElement | null => {
+    const root = rootRef.current;
+    if (!root) return null;
+    const vp = root.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLElement | null;
+    return vp;
+  };
+
+  const scrollPage = (dir: -1 | 1) => {
+    const vp = getViewport();
+    if (!vp) return;
+    const page = vp.clientWidth; // largura visível
+    const max = vp.scrollWidth - vp.clientWidth; // limite à direita
+    const target = Math.max(0, Math.min(max, vp.scrollLeft + dir * page));
+    vp.scrollTo({ left: target, behavior: "smooth" });
   };
 
   return (
@@ -135,10 +136,10 @@ const CategoryCarousel = ({
       <div className="flex items-center justify-between px-5">
         <h3 className="text-lg font-semibold text-foreground">{category.name}</h3>
         <div className="hidden gap-2 md:flex">
-          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(-1)}>
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollPage(-1)}>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(1)}>
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollPage(1)}>
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
         </div>
