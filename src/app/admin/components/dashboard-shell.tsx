@@ -11,8 +11,8 @@ import {
   UserCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { type ReactNode, useEffect, useState } from "react";
 
 import { logoutAdmin } from "@/app/admin/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -85,8 +85,19 @@ const SidebarTitle = ({ restaurant, planStatusLabel }: Pick<DashboardShellProps,
 
 const DashboardShell = ({ children, restaurant, admin }: DashboardShellProps) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const planStatusLabel = restaurant.subscriptionStatus.toLowerCase().replace("_", " ");
+
+  // Gate: se o trial acabou e não está ativo, força a tela de assinatura
+  useEffect(() => {
+    if (!restaurant.trialEndsAt) return;
+    const ended = new Date(restaurant.trialEndsAt).getTime() < Date.now();
+    const active = restaurant.subscriptionStatus === "ACTIVE";
+    if (ended && !active && pathname !== "/admin/assinatura") {
+      router.replace("/admin/assinatura");
+    }
+  }, [restaurant.trialEndsAt, restaurant.subscriptionStatus, pathname, router]);
 
   return (
     <SidebarProvider>
