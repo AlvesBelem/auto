@@ -37,6 +37,9 @@ const RestaurantMenuPage = async ({
           products: true,
         },
       },
+      galleryImages: {
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 
