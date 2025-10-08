@@ -302,7 +302,11 @@ const AppearanceForm = ({
                 )}
 
                 {showImages && (
-                  <div className="mt-6 grid gap-6 md:grid-cols-2">
+                  <div
+                    className={
+                      `mt-6 grid gap-6 ${effectiveFileFields.length > 1 ? "md:grid-cols-2" : ""}`
+                    }
+                  >
                     {effectiveFileFields.map(({ key, label, placeholder, helper }) => (
                       <FormField
                         key={key}
