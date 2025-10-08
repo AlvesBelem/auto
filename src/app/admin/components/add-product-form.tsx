@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, UploadIcon } from "lucide-react";
-import { useCallback, useRef, useTransition } from "react";
+import { useCallback, useRef, useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -90,12 +90,7 @@ const AddProductForm = ({
     });
   };
 
-  const [open, setOpen] = (function useSheetState(){
-    // lightweight sheet state co-located to avoid extra deps
-    // using React.useState here keeps this file self-contained
-    const React = require("react") as typeof import("react");
-    return React.useState(false);
-  })();
+  const [open, setOpen] = useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -214,4 +209,3 @@ const AddProductForm = ({
 };
 
 export default AddProductForm;
-
