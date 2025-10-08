@@ -8,7 +8,13 @@ import { db } from "@/lib/prisma";
 type Result = { ok: true; url: string } | { ok: false; error: string };
 
 const resolveOrigin = () => {
-  return process.env.APP_BASE_URL ?? "http://localhost:3000";
+  if (process.env.APP_BASE_URL) {
+    return process.env.APP_BASE_URL.replace(/\/$/, "");
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`.replace(/\/$/, "");
+  }
+  return "http://localhost:3000";
 };
 
 export const createSubscriptionCheckout = async (): Promise<Result> => {
@@ -38,4 +44,3 @@ export const createSubscriptionCheckout = async (): Promise<Result> => {
   if (!checkout.url) return { ok: false, error: "Não foi possível abrir o checkout" };
   return { ok: true, url: checkout.url };
 };
-

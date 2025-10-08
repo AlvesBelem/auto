@@ -36,8 +36,12 @@ export const createStripeCheckout = async ({
     throw new Error("Invalid CPF");
   }
 
-  const headerList = await headers(); // ✅ sem await aqui
-  const originHeader = headerList.get("origin") || process.env.APP_BASE_URL || "http://localhost:3000";
+  const headerList = await headers();
+  const originHeader =
+    headerList.get("origin") ||
+    process.env.APP_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+    "http://localhost:3000";
   const baseUrl = originHeader.replace(/\/$/, "");
 
   const productsWithPrices = await db.product.findMany({
@@ -49,12 +53,10 @@ export const createStripeCheckout = async ({
   });
 
   const priceByProductId = new Map(
-    productsWithPrices.map((product) => [product.id, product.price])
+    productsWithPrices.map((product) => [product.id, product.price]),
   );
 
-  const missingProduct = products.find(
-    (product) => !priceByProductId.has(product.id)
-  );
+  const missingProduct = products.find((product) => !priceByProductId.has(product.id));
 
   if (missingProduct) {
     throw new Error(`Product ${missingProduct.id} is no longer available`);
@@ -92,3 +94,4 @@ export const createStripeCheckout = async ({
 
   return { sessionId: session.id };
 };
+
