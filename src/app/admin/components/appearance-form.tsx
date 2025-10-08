@@ -250,11 +250,11 @@ const AppearanceForm = ({
         >
           {(showMessaging || showImages) && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 shadow-inner">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 shadow-inner mx-auto max-w-3xl">
                 {showMessaging && messagingEditableInSheet && (
                   <>
-                    <div className="mb-4 flex items-center justify-between">
-                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <div className="mb-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 text-center sm:text-left">
                         <SparklesIcon className="h-4 w-4" /> Mensagens exibidas
                       </p>
                       <Sheet open={msgOpen} onOpenChange={setMsgOpen}>
@@ -330,18 +330,18 @@ const AppearanceForm = ({
                         </SheetContent>
                       </Sheet>
                     </div>
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-slate-900">{heroTitleWatch || "—"}</p>
+                        <p className="text-base font-semibold text-slate-900">{heroTitleWatch || "—"}</p>
                         <p className="text-sm text-slate-500">{heroSubtitleWatch || "—"}</p>
                       </div>
-                      <div className="mt-4 grid gap-2 md:grid-cols-2">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Título no totem</p>
+                      <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        <div className="text-center">
+                          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Título no totem</p>
                           <p className="text-sm text-slate-700">{welcomeTitleWatch || "—"}</p>
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Mensagem no totem</p>
+                        <div className="text-center">
+                          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Mensagem no totem</p>
                           <p className="text-sm text-slate-700">{welcomeMessageWatch || "—"}</p>
                         </div>
                       </div>
