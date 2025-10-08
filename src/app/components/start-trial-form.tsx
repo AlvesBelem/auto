@@ -144,7 +144,7 @@ const StartTrialForm = () => {
                 <span>Iniciando seu ambiente...</span>
               </span>
             ) : (
-              "Teste por 14 dias grátis
+              "Teste por 14 dias gratis"
             )}
           </Button>
         </form>
