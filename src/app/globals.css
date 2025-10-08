@@ -48,3 +48,37 @@ body {
     @apply h-full;
   }
 }
+
+/* Scrollbar behavior: fade in thumb on hover, keep layout stable */
+@layer utilities {
+  .scrollbar-on-hover {
+    scrollbar-gutter: stable both-edges; /* evita "pulo" ao aparecer */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: transparent transparent; /* invisível por padrão no Firefox */
+    --sb-size: 8px;
+    --sb-thumb: transparent; /* cor inicial (invisível) */
+  }
+  /* WebKit/Chromium */
+  .scrollbar-on-hover::-webkit-scrollbar {
+    height: var(--sb-size);
+    background: transparent;
+  }
+  .scrollbar-on-hover::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb);
+    border-radius: 9999px;
+    transition: background-color 200ms ease;
+  }
+  .scrollbar-on-hover::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  /* Hover: revela o polegar com fade */
+  .scrollbar-on-hover:hover {
+    --sb-thumb: hsl(var(--muted-foreground) / 0.5);
+    scrollbar-color: hsl(var(--muted-foreground) / 0.5) transparent; /* Firefox */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scrollbar-on-hover::-webkit-scrollbar-thumb {
+      transition: none;
+    }
+  }
+}

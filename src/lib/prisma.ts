@@ -1,6 +1,7 @@
 import "server-only";
 
 import { loadEnvConfig } from "@next/env";
+
 import { PrismaClient } from "../../generate";
 
 if (!process.env.DATABASE_URL) {

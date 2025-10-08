@@ -9,7 +9,6 @@ import { z } from "zod";
 
 import {
   createCategory,
-  createProduct,
   deleteCategory,
   deleteProduct,
   updateCategory,
@@ -19,22 +18,23 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import BulkImportSheet from "./bulk-import-sheet";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
+
+import AddProductForm from "./add-product-form";
+import BulkImportSheet from "./bulk-import-sheet";
 
 const categorySchema = z.object({
   name: z.string().trim().min(3, "Nome muito curto"),
@@ -42,20 +42,19 @@ const categorySchema = z.object({
 
 const productSchema = z.object({
   name: z.string().trim().min(3, "Nome muito curto"),
-  description: z.string().trim().min(10, "Descricao muito curta"),
-  price: z.coerce.number().min(0.5, "Informe um valor valido"),
+  description: z.string().trim().min(10, "Descrição muito curta"),
+  price: z.coerce.number().min(0.5, "Informe um valor válido"),
   imageUrl: z.string().trim().min(1, "Selecione uma imagem"),
   ingredients: z.string().trim().optional(),
   videoUrl: z
     .string()
     .trim()
-    .url("Informe uma URL valida")
+    .url("Informe uma URL válida")
     .optional()
     .or(z.literal("").transform(() => undefined)),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
-
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 const toBase64 = (file: File) =>
@@ -92,8 +91,8 @@ const MenuManager = ({ categories }: MenuManagerProps) => {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Categorias do cardapio</h3>
-            <p className="text-sm text-slate-500">Agrupe produtos e organize a ordem do seu cardapio.</p>
+            <h3 className="text-lg font-semibold text-slate-900">Categorias do cardápio</h3>
+            <p className="text-sm text-slate-500">Agrupe produtos e organize a ordem do seu cardápio.</p>
           </div>
           <CreateCategorySheet onCreated={refresh} />
         </div>
@@ -102,11 +101,11 @@ const MenuManager = ({ categories }: MenuManagerProps) => {
         {categories.map((category) => (
           <CategoryCard category={category} key={category.id} routerRefresh={refresh} />
         ))}
-        {categories.length === 0 ? (
+        {categories.length === 0 && (
           <p className="rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
             Nenhuma categoria cadastrada ainda. Comece criando uma para organizar seus produtos.
           </p>
-        ) : null}
+        )}
       </div>
     </div>
   );
@@ -138,9 +137,7 @@ const CategoryCard = ({ category, routerRefresh }: CategoryCardProps) => {
   const handleDelete = () => {
     startTransition(async () => {
       const result = await deleteCategory({ id: category.id });
-      if (result.ok) {
-        routerRefresh();
-      }
+      if (result.ok) routerRefresh();
     });
   };
 
@@ -152,7 +149,7 @@ const CategoryCard = ({ category, routerRefresh }: CategoryCardProps) => {
           <p className="text-sm text-slate-500">{category.products.length} produtos cadastrados</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsEditing((prev) => !prev)}>
+          <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
             <PencilIcon className="mr-2 h-4 w-4" /> Renomear
           </Button>
           <Button variant="outline" onClick={handleDelete}>
@@ -160,12 +157,10 @@ const CategoryCard = ({ category, routerRefresh }: CategoryCardProps) => {
           </Button>
         </div>
       </div>
-      {isEditing ? (
+
+      {isEditing && (
         <Form {...categoryForm}>
-          <form
-            className="mt-4 flex flex-col gap-3 sm:flex-row"
-            onSubmit={categoryForm.handleSubmit(handleUpdate)}
-          >
+          <form onSubmit={categoryForm.handleSubmit(handleUpdate)} className="mt-4 flex flex-col gap-3 sm:flex-row">
             <FormField
               control={categoryForm.control}
               name="name"
@@ -179,13 +174,14 @@ const CategoryCard = ({ category, routerRefresh }: CategoryCardProps) => {
                 </FormItem>
               )}
             />
-            <Button disabled={isPending} type="submit">Salvar</Button>
+            <Button type="submit" disabled={isPending}>Salvar</Button>
           </form>
         </Form>
-      ) : null}
+      )}
+
       <div className="mt-6 space-y-4">
         {category.products.map((product) => (
-          <ProductCard categoryId={category.id} key={product.id} product={product} routerRefresh={routerRefresh} />
+          <ProductCard key={product.id} categoryId={category.id} product={product} routerRefresh={routerRefresh} />
         ))}
         <AddProductForm categoryId={category.id} routerRefresh={routerRefresh} />
       </div>
@@ -211,6 +207,7 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
   const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -218,41 +215,28 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
       description: product.description,
       price: product.price,
       imageUrl: product.imageUrl,
-      videoUrl: (product as any).videoUrl || "",
+      videoUrl: product.videoUrl ?? "",
       ingredients: product.ingredients.join(", "),
     },
   });
 
   const handleFileSelect = useCallback(async (fileList: FileList | null) => {
     const file = fileList?.[0];
-    if (!file) {
-      return;
-    }
-    try {
-      const dataUrl = await toBase64(file);
-      form.setValue("imageUrl", dataUrl, { shouldDirty: true, shouldTouch: true });
-    } catch {
-      // noop
-    }
+    if (!file) return;
+    const dataUrl = await toBase64(file);
+    form.setValue("imageUrl", dataUrl, { shouldDirty: true, shouldTouch: true });
   }, [form]);
 
   const handleDelete = () => {
     startTransition(async () => {
       const result = await deleteProduct({ id: product.id });
-      if (result.ok) {
-        routerRefresh();
-      }
+      if (result.ok) routerRefresh();
     });
   };
 
   const handleUpdate = (values: ProductFormValues) => {
     startTransition(async () => {
-      const payload = {
-        id: product.id,
-        menuCategoryId: categoryId,
-        ...values,
-      };
-      const result = await updateProduct(payload);
+      const result = await updateProduct({ id: product.id, menuCategoryId: categoryId, ...values });
       if (result.ok) {
         setEditOpen(false);
         routerRefresh();
@@ -267,11 +251,11 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
           <h5 className="text-lg font-semibold text-slate-900">{product.name}</h5>
           <p className="text-sm text-slate-500">R$ {product.price.toFixed(2)}</p>
           <p className="mt-2 text-sm text-slate-600">{product.description}</p>
-          {product.ingredients.length > 0 ? (
+          {product.ingredients.length > 0 && (
             <p className="mt-2 text-xs uppercase tracking-widest text-slate-400">
               Ingredientes: {product.ingredients.join(", ")}
             </p>
-          ) : null}
+          )}
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setEditOpen(true)}>
@@ -282,8 +266,8 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
           </Button>
         </div>
       </div>
+
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
-        <SheetTrigger asChild></SheetTrigger>
         <SheetContent side="right" className="w-full sm:max-w-xl">
           <SheetHeader>
             <SheetTitle>Editar produto</SheetTitle>
@@ -292,6 +276,7 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
           <div className="mt-6">
             <Form {...form}>
               <form className="grid gap-4" onSubmit={form.handleSubmit(handleUpdate)}>
+                {/* Nome e preço */}
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -299,9 +284,7 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nome</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
+                        <FormControl><Input {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -311,31 +294,27 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Preco</FormLabel>
-                        <FormControl>
-                          <Input step="0.01" type="number" {...field} />
-                        </FormControl>
+                        <FormLabel>Preço</FormLabel>
+                        <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+                {/* Imagem */}
                 <FormField
                   control={form.control}
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Imagem</FormLabel>
-                      <FormDescription>
-                        Recomendada 800x600 px, JPG otimizado ou PNG transparente.
-                      </FormDescription>
                       <FormControl>
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                           <Input placeholder="https://..." {...field} />
                           <Button
                             type="button"
                             variant="outline"
-                            className="shrink-0 rounded-xl"
+                            className="shrink-0"
                             onClick={() => fileInputRef.current?.click()}
                           >
                             <UploadIcon className="mr-2 h-4 w-4" />
@@ -346,7 +325,7 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
                             type="file"
                             accept="image/*"
                             className="hidden"
-                            onChange={(event) => handleFileSelect(event.target.files)}
+                            onChange={(e) => handleFileSelect(e.target.files)}
                           />
                         </div>
                       </FormControl>
@@ -354,49 +333,45 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
                     </FormItem>
                   )}
                 />
+                {/* Vídeo */}
                 <FormField
                   control={form.control}
                   name="videoUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Video do produto (URL)</FormLabel>
-                      <FormDescription>Link do YouTube/Vimeo ou MP4 hospedado.</FormDescription>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
+                      <FormLabel>Vídeo (URL)</FormLabel>
+                      <FormControl><Input placeholder="https://..." {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                {/* Descrição */}
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Descricao</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                {/* Ingredientes */}
                 <FormField
                   control={form.control}
                   name="ingredients"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ingredientes (separados por virgula)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: pao, carne, queijo" {...field} />
-                      </FormControl>
+                      <FormLabel>Ingredientes</FormLabel>
+                      <FormControl><Input placeholder="Ex: pão, carne, queijo" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <div className="flex gap-2">
-                  <Button disabled={isPending} type="submit">Salvar produto</Button>
-                  <Button onClick={() => setEditOpen(false)} type="button" variant="ghost">Cancelar</Button>
+                  <Button type="submit" disabled={isPending}>Salvar</Button>
+                  <Button type="button" variant="ghost" onClick={() => setEditOpen(false)}>Cancelar</Button>
                 </div>
               </form>
             </Form>
@@ -407,202 +382,10 @@ const ProductCard = ({ product, categoryId, routerRefresh }: ProductCardProps) =
   );
 };
 
-
-interface AddProductFormProps {
-  categoryId: string;
-  routerRefresh: () => void;
-}
-
-const AddProductForm = ({ categoryId, routerRefresh }: AddProductFormProps) => {
+const CreateCategorySheet = ({ onCreated }: { onCreated: () => void }) => {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      price: 29.9,
-      imageUrl: "",
-      videoUrl: "",
-      ingredients: "",
-    },
-  });
-
-  const handleFileSelect = useCallback(async (fileList: FileList | null) => {
-    const file = fileList?.[0];
-    if (!file) return;
-    try {
-      const dataUrl = await toBase64(file);
-      form.setValue("imageUrl", dataUrl, { shouldDirty: true, shouldTouch: true });
-    } catch {
-      setError("Nao foi possivel ler o arquivo selecionado.");
-    }
-  }, [form]);
-
-  const handleSubmit = (values: ProductFormValues) => {
-    startTransition(async () => {
-      setError(null);
-      const payload = { menuCategoryId: categoryId, ...values };
-      const result = await createProduct(payload);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      form.reset({ name: "", description: "", price: 29.9, imageUrl: "", videoUrl: "", ingredients: "" });
-      setOpen(false);
-      routerRefresh();
-    });
-  };
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button className="w-full bg-amber-500 text-white hover:bg-amber-600" type="button">
-          <PlusIcon className="mr-2 h-4 w-4" /> Novo produto
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-xl">
-        <SheetHeader>
-          <SheetTitle>Novo produto</SheetTitle>
-          <SheetDescription>Cadastre os dados do item do cardapio.</SheetDescription>
-        </SheetHeader>
-        <div className="mt-6">
-          <Form {...form}>
-            <form className="grid gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
-              {error ? (
-                <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-              ) : null}
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Preco</FormLabel>
-                      <FormControl>
-                        <Input step="0.01" type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagem</FormLabel>
-                    <FormDescription>
-                      Recomendada 800x600 px (JPG) ou PNG com fundo transparente.
-                    </FormDescription>
-                    <FormControl>
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <Input placeholder="https://..." {...field} />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="shrink-0 rounded-xl"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <UploadIcon className="mr-2 h-4 w-4" />
-                          Arquivo
-                        </Button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(event) => handleFileSelect(event.target.files)}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="videoUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Video do produto (URL)</FormLabel>
-                    <FormDescription>Link do YouTube/Vimeo ou MP4 hospedado.</FormDescription>
-                    <FormControl>
-                      <Input placeholder="https://..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descricao</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="ingredients"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ingredientes (separados por virgula)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ex: pao, carne, queijo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex gap-2">
-                <Button disabled={isPending} type="submit">
-                  Salvar produto
-                </Button>
-                <Button onClick={() => setOpen(false)} type="button" variant="ghost">
-                  Cancelar
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-};
-
-
-export default MenuManager;
-
-interface CreateCategorySheetProps {
-  onCreated: () => void;
-}
-
-const CreateCategorySheet = ({ onCreated }: CreateCategorySheetProps) => {
-  const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: { name: "" },
@@ -622,7 +405,7 @@ const CreateCategorySheet = ({ onCreated }: CreateCategorySheetProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button type="button" className="gap-2">
+        <Button className="gap-2" type="button">
           <PlusIcon className="h-4 w-4" /> Nova categoria
         </Button>
       </SheetTrigger>
@@ -648,8 +431,8 @@ const CreateCategorySheet = ({ onCreated }: CreateCategorySheetProps) => {
                 )}
               />
               <div className="flex gap-2">
-                <Button disabled={isPending} type="submit">Salvar</Button>
-                <Button onClick={() => setOpen(false)} type="button" variant="ghost">Cancelar</Button>
+                <Button type="submit" disabled={isPending}>Salvar</Button>
+                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
               </div>
             </form>
           </Form>
@@ -658,3 +441,5 @@ const CreateCategorySheet = ({ onCreated }: CreateCategorySheetProps) => {
     </Sheet>
   );
 };
+
+export default MenuManager;

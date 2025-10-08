@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
+import { normalizeImageSrc } from "@/lib/images";
 
 import CartSheet from "../../components/cart-sheet";
 import { CartContext } from "../../contexts/cart";
@@ -83,7 +84,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
             <Image
-              src={product.restaurant.avatarImageUrl}
+              src={normalizeImageSrc(product.restaurant.avatarImageUrl)}
               alt={product.restaurant.name}
               width={16}
               height={16}

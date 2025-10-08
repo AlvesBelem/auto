@@ -1,14 +1,13 @@
-"use client";
+﻿"use client";
 
 import { Prisma } from "@prisma/client";
-import { ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon,ClockIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
 
 import { CartContext } from "../contexts/cart";
@@ -24,9 +23,6 @@ interface RestaurantCategoriesProps {
   }>;
 }
 
-type MenuCategoriesWithProducts = Prisma.MenuCategoryGetPayload<{
-  include: { products: true };
-}>;
 
 const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
   const { products, total, toggleCart, totalQuantity } = useContext(CartContext);
@@ -43,8 +39,8 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
   const welcomeMessage = restaurant.menuWelcomeMessage ?? restaurant.description;
 
   return (
-    <div className="relative z-50 mt-[-1.5rem] rounded-t-3xl bg-card shadow-xl">
-      <div className="p-5">
+    <div className="relative z-50 -mt-3 md:-mt-4 rounded-t-3xl bg-card shadow-xl">
+      <div className="p-6 md:p-8">
         <div className="flex items-center gap-3">
           <Image
             src={restaurant.avatarImageUrl}
@@ -107,32 +103,43 @@ const CategoryCarousel = ({
   buildHref: (productId: string) => string;
 }) => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const scrollByAmount = (dir: -1 | 1) => {
+
+  const scrollPage = (dir: -1 | 1) => {
     const node = scrollerRef.current;
     if (!node) return;
-    const delta = dir * Math.round(node.clientWidth * 0.9);
-    node.scrollBy({ left: delta, behavior: "smooth" });
+    const page = node.clientWidth; // largura visÃ­vel
+    const max = node.scrollWidth - node.clientWidth; // limite Ã  direita
+    const target = Math.max(0, Math.min(max, node.scrollLeft + dir * page));
+    node.scrollTo({ left: target, behavior: "smooth" });
   };
+
+  // Garante que o carrossel inicie totalmente à esquerda
+  useEffect(() => {
+    const node = scrollerRef.current;
+    if (node) node.scrollTo({ left: 0, behavior: "auto" });
+  }, []);
 
   return (
     <section className="relative">
-      <div className="flex items-center justify-between px-5">
+      <div className="flex items-center justify-between px-6 md:px-8">
         <h3 className="text-lg font-semibold text-foreground">{category.name}</h3>
         <div className="hidden gap-2 md:flex">
-          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(-1)}>
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollPage(-1)}>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(1)}>
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollPage(1)}>
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <ScrollArea className="w-full">
-        <div
-          ref={scrollerRef}
-          className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 overflow-x-auto snap-x snap-mandatory"
-        >
+      <div
+        ref={scrollerRef}
+        className="w-full overflow-x-auto snap-x snap-mandatory px-6 md:px-8 scrollbar-on-hover"
+        // Alinha o snap com o padding lateral, evitando offset inicial
+        style={{ scrollPaddingLeft: "1.5rem", scrollPaddingRight: "1.5rem" }}
+      >
+        <div className="flex w-max gap-3 md:gap-4 pt-3 pb-5">
           {category.products.map((product) => (
             <Link
               key={product.id}
@@ -160,8 +167,8 @@ const CategoryCarousel = ({
             </Link>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     </section>
   );
 };
+

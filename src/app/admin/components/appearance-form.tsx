@@ -29,6 +29,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { normalizeImageSrc } from "@/lib/images";
 
 const hexColorRegex = /^#[0-9a-fA-F]{6}$/;
 
@@ -53,6 +61,8 @@ interface AppearanceFormProps {
   showImages?: boolean;
   showColors?: boolean;
   asCard?: boolean;
+  imageKeys?: Array<"avatarImageUrl" | "coverImageUrl">;
+  messagingEditableInSheet?: boolean;
 }
 
 const colorFields: Array<{
@@ -128,9 +138,12 @@ const AppearanceForm = ({
   showImages = true,
   showColors = true,
   asCard = true,
+  imageKeys,
+  messagingEditableInSheet,
 }: AppearanceFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [msgOpen, setMsgOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -143,6 +156,10 @@ const AppearanceForm = ({
     "accentColor",
     "surfaceColor",
   ]);
+  const heroTitleWatch = form.watch("heroTitle");
+  const heroSubtitleWatch = form.watch("heroSubtitle");
+  const welcomeTitleWatch = form.watch("menuWelcomeTitle");
+  const welcomeMessageWatch = form.watch("menuWelcomeMessage");
 
   const previewTokens = useMemo(() => {
     const [primary, secondary, accent, surface] = colorWatch.map(ensureHex);
@@ -198,6 +215,12 @@ const AppearanceForm = ({
       ? "Ajuste as cores principais usadas na landing, totem e pedidos."
       : "Atualize textos, imagens e cores que apresentam seu restaurante.";
 
+  const effectiveFileFields = useMemo(() => {
+    if (!imageKeys || imageKeys.length === 0) return fileFields;
+    const allowed = new Set(imageKeys);
+    return fileFields.filter((f) => allowed.has(f.key));
+  }, [imageKeys]);
+
   const containerClass = asCard
     ? "w-full max-w-none space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
     : "w-full max-w-none space-y-6";
@@ -228,8 +251,105 @@ const AppearanceForm = ({
         >
           {(showMessaging || showImages) && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 shadow-inner">
-                {showMessaging && (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 shadow-inner mx-auto max-w-3xl">
+                {showMessaging && messagingEditableInSheet && (
+                  <>
+                    <div className="mb-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500 text-center sm:text-left">
+                        <SparklesIcon className="h-4 w-4" /> Mensagens exibidas
+                      </p>
+                      <Sheet open={msgOpen} onOpenChange={setMsgOpen}>
+                        <SheetTrigger asChild>
+                          <Button type="button" variant="outline" className="rounded-xl">Editar</Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-full sm:max-w-lg">
+                          <SheetHeader>
+                            <SheetTitle>Editar mensagens</SheetTitle>
+                          </SheetHeader>
+                          <div className="mt-6 grid gap-4">
+                            <FormField
+                              control={form.control}
+                              name="heroTitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título da landing</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Mensagem principal" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="heroSubtitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Subtítulo da landing</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Complemento da mensagem" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="menuWelcomeTitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título no totem</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Ex: Bem-vindo" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="menuWelcomeMessage"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mensagem no totem</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Orientação inicial" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex gap-2 pt-2">
+                              <Button onClick={() => form.handleSubmit(handleSubmit)()} disabled={isPending}>
+                                {isPending ? "Salvando..." : "Salvar"}
+                              </Button>
+                              <Button type="button" variant="ghost" onClick={() => setMsgOpen(false)}>
+                                Cancelar
+                              </Button>
+                            </div>
+                          </div>
+                        </SheetContent>
+                      </Sheet>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
+                      <div className="space-y-1">
+                        <p className="text-base font-semibold text-slate-900">{heroTitleWatch || "—"}</p>
+                        <p className="text-sm text-slate-500">{heroSubtitleWatch || "—"}</p>
+                      </div>
+                      <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        <div className="text-center">
+                          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Título no totem</p>
+                          <p className="text-sm text-slate-700">{welcomeTitleWatch || "—"}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">Mensagem no totem</p>
+                          <p className="text-sm text-slate-700">{welcomeMessageWatch || "—"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {showMessaging && !messagingEditableInSheet && (
                   <>
                     <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
                       <SparklesIcon className="h-4 w-4" /> Mensagens exibidas
@@ -294,8 +414,12 @@ const AppearanceForm = ({
                 )}
 
                 {showImages && (
-                  <div className="mt-6 grid gap-6 md:grid-cols-2">
-                    {fileFields.map(({ key, label, placeholder, helper }) => (
+                  <div
+                    className={
+                      `mt-6 grid gap-6 ${effectiveFileFields.length > 1 ? "md:grid-cols-2" : ""}`
+                    }
+                  >
+                    {effectiveFileFields.map(({ key, label, placeholder, helper }) => (
                       <FormField
                         key={key}
                         control={form.control}
@@ -339,7 +463,7 @@ const AppearanceForm = ({
                                 </p>
                                 <div className="relative w-full h-40">
                                   <Image
-                                    src={form.watch(key)}
+                                    src={normalizeImageSrc(form.watch(key))}
                                     alt={label}
                                     fill
                                     className="object-contain rounded-md"

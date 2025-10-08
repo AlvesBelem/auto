@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -13,18 +14,20 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-
 import { formatCurrency } from "@/helpers/format-currency";
+import { normalizeImageSrc } from "@/lib/images";
+
+type ProductWithVideo = Product & { videoUrl?: string | null };
 
 interface ProductsProps {
-  products: Array<Product & { videoUrl?: string | null }>;
+  products: ProductWithVideo[];
 }
 
 const Products = ({ products }: ProductsProps) => {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const consumptionMethod = searchParams.get("consumptionMethod");
-  const [videoProduct, setVideoProduct] = useState<Product | null>(null);
+  const [videoProduct, setVideoProduct] = useState<ProductWithVideo | null>(null);
 
   const buildEmbedSrc = useMemo(() => (url?: string | null) => {
     if (!url) return null;
@@ -85,7 +88,7 @@ const Products = ({ products }: ProductsProps) => {
           {/* DIREITA */}
           <div className="relative min-h-[82px] min-w-[120px]">
             <Image
-              src={product.imageUrl}
+              src={normalizeImageSrc(product.imageUrl)}
               alt={product.name}
               fill
               className="rounded-lg object-contain"
