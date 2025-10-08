@@ -5,7 +5,7 @@ import { ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -107,11 +107,27 @@ const CategoryCarousel = ({
   buildHref: (productId: string) => string;
 }) => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLElement | null>(null);
+
+  const attachRoot = (node: HTMLDivElement | null) => {
+    rootRef.current = node;
+    if (node) {
+      // Radix ScrollArea viewport element
+      viewportRef.current = node.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      ) as HTMLElement | null;
+    } else {
+      viewportRef.current = null;
+    }
+  };
+
   const scrollByAmount = (dir: -1 | 1) => {
-    const node = scrollerRef.current;
+    const viewport = viewportRef.current;
+    const node = viewport ?? scrollerRef.current; // fallback
     if (!node) return;
-    const delta = dir * Math.round(node.clientWidth * 0.9);
-    node.scrollBy({ left: delta, behavior: "smooth" });
+    const delta = dir * Math.round((node as HTMLElement).clientWidth * 0.9);
+    (node as HTMLElement).scrollBy({ left: delta, behavior: "smooth" });
   };
 
   return (
@@ -128,10 +144,10 @@ const CategoryCarousel = ({
         </div>
       </div>
 
-      <ScrollArea className="w-full">
+      <ScrollArea ref={attachRoot} className="w-full">
         <div
           ref={scrollerRef}
-          className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 overflow-x-auto snap-x snap-mandatory"
+          className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 snap-x snap-mandatory"
         >
           {category.products.map((product) => (
             <Link
