@@ -8,6 +8,7 @@ const baseHosts = [
   "www.seara.com.br",
   "marketplace.canva.com",
   "www.searafoodsolutions.com.br",
+  "www.oliberal.com",
 ];
 
 // Permite adicionar hosts via variável de ambiente (separados por vírgula).
