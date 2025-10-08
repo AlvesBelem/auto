@@ -1,6 +1,4 @@
 "use server";
-
-import { headers } from "next/headers";
 import { z } from "zod";
 
 import { hashPassword } from "@/lib/auth/password";
@@ -35,12 +33,7 @@ const ensureUniqueSlug = async (name: string) => {
   return candidate;
 };
 
-const resolveOrigin = () => {
-  const originHeader = headers().get("origin");
-  if (originHeader) return originHeader;
-  if (process.env.APP_BASE_URL) return process.env.APP_BASE_URL;
-  return "http://localhost:3000";
-};
+// No need to resolve absolute origin here; returning a path is enough for client navigation.
 
 export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialResult> => {
   const validation = schema.safeParse(rawInput);
@@ -100,6 +93,5 @@ export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialR
     await createAdminSession({ adminId: admin.id, restaurantId: restaurant.id });
   }
 
-  return { ok: true, checkoutUrl: `${resolveOrigin()}/admin` };
+  return { ok: true, checkoutUrl: "/admin" };
 };
-
