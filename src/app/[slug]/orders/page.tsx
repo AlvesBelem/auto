@@ -10,12 +10,15 @@ import OrderList from "./components/order-list";
 
 interface OrdersPageProps {
   params: { slug: string };
-  searchParams: Promise<{ cpf?: string }>;
+  searchParams?: { cpf?: string };
 }
 
-const OrdersPage = async ({ params, searchParams }: OrdersPageProps) => {
+const OrdersPage = async ({
+  params,
+  searchParams = {},
+}: OrdersPageProps) => {
   const { slug } = params;
-  const { cpf } = await searchParams;
+  const { cpf } = searchParams;
   const restaurant = await db.restaurant.findUnique({ where: { slug } });
   if (!restaurant) {
     return notFound();
