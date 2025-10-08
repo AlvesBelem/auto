@@ -20,6 +20,13 @@ import { z } from "zod";
 import { updateAppearance } from "@/app/admin/actions/appearance";
 import { Button } from "@/components/ui/button";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -54,6 +61,7 @@ interface AppearanceFormProps {
   showColors?: boolean;
   asCard?: boolean;
   imageKeys?: Array<"avatarImageUrl" | "coverImageUrl">;
+  messagingEditableInSheet?: boolean;
 }
 
 const colorFields: Array<{
@@ -130,9 +138,11 @@ const AppearanceForm = ({
   showColors = true,
   asCard = true,
   imageKeys,
+  messagingEditableInSheet,
 }: AppearanceFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [msgOpen, setMsgOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -145,6 +155,10 @@ const AppearanceForm = ({
     "accentColor",
     "surfaceColor",
   ]);
+  const heroTitleWatch = form.watch("heroTitle");
+  const heroSubtitleWatch = form.watch("heroSubtitle");
+  const welcomeTitleWatch = form.watch("menuWelcomeTitle");
+  const welcomeMessageWatch = form.watch("menuWelcomeMessage");
 
   const previewTokens = useMemo(() => {
     const [primary, secondary, accent, surface] = colorWatch.map(ensureHex);
@@ -237,7 +251,104 @@ const AppearanceForm = ({
           {(showMessaging || showImages) && (
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-6 shadow-inner">
-                {showMessaging && (
+                {showMessaging && messagingEditableInSheet && (
+                  <>
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                        <SparklesIcon className="h-4 w-4" /> Mensagens exibidas
+                      </p>
+                      <Sheet open={msgOpen} onOpenChange={setMsgOpen}>
+                        <SheetTrigger asChild>
+                          <Button type="button" variant="outline" className="rounded-xl">Editar</Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-full sm:max-w-lg">
+                          <SheetHeader>
+                            <SheetTitle>Editar mensagens</SheetTitle>
+                          </SheetHeader>
+                          <div className="mt-6 grid gap-4">
+                            <FormField
+                              control={form.control}
+                              name="heroTitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título da landing</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Mensagem principal" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="heroSubtitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Subtítulo da landing</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Complemento da mensagem" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="menuWelcomeTitle"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Título no totem</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Ex: Bem-vindo" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="menuWelcomeMessage"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mensagem no totem</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Orientação inicial" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex gap-2 pt-2">
+                              <Button onClick={() => form.handleSubmit(handleSubmit)()} disabled={isPending}>
+                                {isPending ? "Salvando..." : "Salvar"}
+                              </Button>
+                              <Button type="button" variant="ghost" onClick={() => setMsgOpen(false)}>
+                                Cancelar
+                              </Button>
+                            </div>
+                          </div>
+                        </SheetContent>
+                      </Sheet>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-slate-900">{heroTitleWatch || "—"}</p>
+                        <p className="text-sm text-slate-500">{heroSubtitleWatch || "—"}</p>
+                      </div>
+                      <div className="mt-4 grid gap-2 md:grid-cols-2">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Título no totem</p>
+                          <p className="text-sm text-slate-700">{welcomeTitleWatch || "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Mensagem no totem</p>
+                          <p className="text-sm text-slate-700">{welcomeMessageWatch || "—"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {showMessaging && !messagingEditableInSheet && (
                   <>
                     <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
                       <SparklesIcon className="h-4 w-4" /> Mensagens exibidas

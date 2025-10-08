@@ -41,6 +41,7 @@ const IdentityPage = async () => {
             showColors={false}
             asCard={false}
             imageKeys={["avatarImageUrl"]}
+            messagingEditableInSheet
           />
         </div>
       </div>
