@@ -9,6 +9,10 @@ const baseHosts = [
   "marketplace.canva.com",
   "www.searafoodsolutions.com.br",
   "www.oliberal.com",
+  "i0.wp.com",
+  "i1.wp.com",
+  "i2.wp.com",
+  "i3.wp.com",
 ];
 
 // Permite adicionar hosts via variável de ambiente (separados por vírgula).
