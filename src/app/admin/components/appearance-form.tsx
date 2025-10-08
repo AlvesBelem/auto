@@ -53,6 +53,7 @@ interface AppearanceFormProps {
   showImages?: boolean;
   showColors?: boolean;
   asCard?: boolean;
+  imageKeys?: Array<"avatarImageUrl" | "coverImageUrl">;
 }
 
 const colorFields: Array<{
@@ -128,6 +129,7 @@ const AppearanceForm = ({
   showImages = true,
   showColors = true,
   asCard = true,
+  imageKeys,
 }: AppearanceFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -197,6 +199,12 @@ const AppearanceForm = ({
     showColors && !showMessaging && !showImages
       ? "Ajuste as cores principais usadas na landing, totem e pedidos."
       : "Atualize textos, imagens e cores que apresentam seu restaurante.";
+
+  const effectiveFileFields = useMemo(() => {
+    if (!imageKeys || imageKeys.length === 0) return fileFields;
+    const allowed = new Set(imageKeys);
+    return fileFields.filter((f) => allowed.has(f.key));
+  }, [imageKeys]);
 
   const containerClass = asCard
     ? "w-full max-w-none space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
@@ -295,7 +303,7 @@ const AppearanceForm = ({
 
                 {showImages && (
                   <div className="mt-6 grid gap-6 md:grid-cols-2">
-                    {fileFields.map(({ key, label, placeholder, helper }) => (
+                    {effectiveFileFields.map(({ key, label, placeholder, helper }) => (
                       <FormField
                         key={key}
                         control={form.control}

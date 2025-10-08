@@ -40,6 +40,7 @@ const IdentityPage = async () => {
             showImages
             showColors={false}
             asCard={false}
+            imageKeys={["avatarImageUrl"]}
           />
         </div>
       </div>
