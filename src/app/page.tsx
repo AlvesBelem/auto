@@ -82,7 +82,7 @@ const HomePage = () => {
               Lance um totem de auto-checkout em minutos e surpreenda cada cliente.
             </h1>
             <p className="max-w-xl text-lg text-slate-200/80">
-              ServeFlow integra totens, cardapio digital e cobranca recorrente em um unico painel. Teste por 7 dias e veja as filas sumirem.
+              ServeFlow integra totens, cardapio digital e cobranca recorrente em um unico painel. Teste por 14 dias e veja as filas sumirem.
             </p>
             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-300/90">
               <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ const HomePage = () => {
               ))}
             </div>
             <Button size="lg" className="mt-4 w-fit" asChild>
-              <a href="#teste-gratis">Teste por 7 dias gratis</a>
+              <a href="#teste-gratis">Teste por 14 dias gratis</a>
             </Button>
           </div>
           <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836')] bg-cover bg-center shadow-xl">
