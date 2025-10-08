@@ -30,12 +30,7 @@ export const isAllowedRemoteHost = (src: string) => {
 
 export const normalizeImageSrc = (src: string) => {
   if (!src) return src;
-  try {
-    const url = new URL(src);
-    if (isAllowedRemoteHost(src)) return src;
-    return `/api/img?src=${encodeURIComponent(src)}`;
-  } catch {
-    return src; // local path or data URL
-  }
+  return isAllowedRemoteHost(src)
+    ? src
+    : `/api/img?src=${encodeURIComponent(src)}`;
 };
-

@@ -27,6 +27,7 @@ export const createStripeCheckout = async ({
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Missing Stripe secret key");
   }
+
   if (!products.length) {
     throw new Error("Cannot create a checkout session without products");
   }
@@ -35,9 +36,9 @@ export const createStripeCheckout = async ({
     throw new Error("Invalid CPF");
   }
 
-  const headerList = headers();
-  const originHeader = headerList.get("origin") ?? process.env.APP_BASE_URL;
-  const baseUrl = originHeader?.replace(/\/$/, "") ?? "http://localhost:3000";
+  const headerList = await headers(); // ✅ sem await aqui
+  const originHeader = headerList.get("origin") || process.env.APP_BASE_URL || "http://localhost:3000";
+  const baseUrl = originHeader.replace(/\/$/, "");
 
   const productsWithPrices = await db.product.findMany({
     where: {
@@ -46,12 +47,13 @@ export const createStripeCheckout = async ({
       },
     },
   });
+
   const priceByProductId = new Map(
-    productsWithPrices.map((product) => [product.id, product.price]),
+    productsWithPrices.map((product) => [product.id, product.price])
   );
 
   const missingProduct = products.find(
-    (product) => !priceByProductId.has(product.id),
+    (product) => !priceByProductId.has(product.id)
   );
 
   if (missingProduct) {
@@ -61,17 +63,19 @@ export const createStripeCheckout = async ({
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-02-24.acacia",
   });
+
   const searchParams = new URLSearchParams();
   searchParams.set("consumptionMethod", consumptionMethod);
   const sanitizedCpf = removeCpfPunctuation(cpf);
   searchParams.set("cpf", sanitizedCpf);
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
     success_url: `${baseUrl}/${slug}/orders?${searchParams.toString()}`,
     cancel_url: `${baseUrl}/${slug}/orders?${searchParams.toString()}`,
     metadata: {
-      orderId,
+      orderId: String(orderId),
     },
     line_items: products.map((product) => ({
       price_data: {
@@ -85,5 +89,6 @@ export const createStripeCheckout = async ({
       quantity: product.quantity,
     })),
   });
+
   return { sessionId: session.id };
 };

@@ -19,7 +19,12 @@ const rowSchema = z.object({
     return n;
   }),
   imageUrl: z.string().trim().url("Imagem inválida"),
-  videoUrl: z.string().trim().url().optional().or(z.literal("").transform(() => undefined)),
+  videoUrl: z
+    .string()
+    .trim()
+    .url()
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   ingredients: z
     .string()
     .optional()
@@ -31,9 +36,11 @@ const rowSchema = z.object({
     ),
 });
 
-const normalizeHeader = (key: string) => {
+type RowData = z.infer<typeof rowSchema>;
+
+const normalizeHeader = (key: string): keyof RowData | string => {
   const k = key.toLowerCase().trim();
-  const map: Record<string, string> = {
+  const map: Record<string, keyof RowData> = {
     categoria: "category",
     category: "category",
     "nome do produto": "name",
@@ -56,49 +63,84 @@ const normalizeHeader = (key: string) => {
   return map[k] ?? k;
 };
 
-async function parseCsv(buffer: Buffer) {
+async function parseCsv(buffer: Buffer): Promise<RowData[]> {
   const text = buffer.toString("utf8");
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-  if (lines.length === 0) return [] as any[];
+  if (lines.length === 0) return [];
+
   const headers = lines[0].split(/,|;|\t/).map((h) => normalizeHeader(h));
-  const rows: any[] = [];
+  const rows: RowData[] = [];
+
   for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(/,|;|\t/);
-    const row: any = {};
+    const row: Partial<RowData> = {};
     for (let j = 0; j < headers.length; j++) {
-      row[headers[j]] = cols[j]?.trim() ?? "";
+      const key = headers[j] as keyof RowData;
+      const value = cols[j]?.trim();
+
+      if (value !== "" && value !== undefined && value !== null) {
+        if (key === "ingredients") {
+          row[key] = String(value)
+            .split(",")
+            .map((i) => i.trim()) as RowData[typeof key];
+        } else if (key === "price") {
+          row[key] = typeof value === "string"
+            ? parseFloat(value.replace(/\./g, "").replace(",", "."))
+            : value as RowData[typeof key];
+        } else {
+          row[key] = String(value) as RowData[typeof key];
+        }
+      }
     }
-    rows.push(row);
+    rows.push(row as RowData);
   }
+
   return rows;
 }
 
-async function parseXlsxOrCsv(file: File): Promise<any[] | { error: string }> {
+async function parseXlsxOrCsv(file: File): Promise<RowData[] | { error: string }> {
   const ext = (file.name.split(".").pop() || "").toLowerCase();
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
+
   if (ext === "csv") {
     return parseCsv(buffer);
   }
+
   try {
-    // Try to use sheetjs if available without bundler resolving it eagerly
-    // eslint-disable-next-line no-eval
-    const req: any = eval("require");
+    const req = eval("require") as NodeRequire;
     const XLSX = req("xlsx");
     const workbook = XLSX.read(buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    const json: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-    // Normalize keys
-    const normalized = json.map((row) => {
-      const out: any = {};
-      Object.keys(row).forEach((k) => {
-        out[normalizeHeader(k)] = row[k];
+    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" }) as Record<string, string | number>[];
+
+    const normalized: RowData[] = json.map((row: Record<string, string | number>) => {
+      const out: Partial<RowData> = {};
+      Object.keys(row).forEach((k: string) => {
+        const key = normalizeHeader(k) as keyof RowData;
+        const value = row[k];
+
+        if (value !== "" && value !== undefined && value !== null) {
+          if (key === "ingredients") {
+            out[key] = String(value)
+              .split(",")
+              .map((i) => i.trim()) as RowData[typeof key];
+          } else if (key === "price") {
+            out[key] = typeof value === "string"
+              ? parseFloat(value.replace(/\./g, "").replace(",", "."))
+              : value as RowData[typeof key];
+          } else {
+            out[key] = String(value) as RowData[typeof key];
+          }
+        }
       });
-      return out;
+
+      return out as RowData;
     });
+
     return normalized;
-  } catch (e) {
+  } catch {
     return {
       error:
         "Não foi possível ler .xlsx porque a dependência 'xlsx' não está instalada no projeto. Instale com 'npm i xlsx' ou envie um .csv.",
@@ -110,20 +152,21 @@ export async function importMenuFromSpreadsheet(formData: FormData): Promise<Imp
   try {
     const session = await requireAdminSession();
     const file = formData.get("file");
+
     if (!file || !(file instanceof File)) {
       return { ok: false, error: "Arquivo não enviado" };
     }
+
     const parsed = await parseXlsxOrCsv(file);
-    if ("error" in parsed) {
-      return { ok: false, error: parsed.error } as const;
-    }
+    if ("error" in parsed) return { ok: false, error: parsed.error };
+
     const rows = parsed;
     if (rows.length === 0) {
       return { ok: false, error: "Planilha vazia" };
     }
 
-    // Validate rows
-    const validRows: Array<z.infer<typeof rowSchema>> = [];
+    const validRows: RowData[] = [];
+
     for (const [index, raw] of rows.entries()) {
       const res = rowSchema.safeParse(raw);
       if (!res.success) {
@@ -141,10 +184,12 @@ export async function importMenuFromSpreadsheet(formData: FormData): Promise<Imp
     for (const row of validRows) {
       const key = row.category.trim().toLowerCase();
       let categoryId = categoriesByName.get(key);
+
       if (!categoryId) {
         const existing = await db.menuCategory.findFirst({
           where: { restaurantId: session.restaurantId, name: row.category },
         });
+
         if (existing) {
           categoryId = existing.id;
         } else {
@@ -154,6 +199,7 @@ export async function importMenuFromSpreadsheet(formData: FormData): Promise<Imp
           categoryId = created.id;
           categoriesCreated++;
         }
+
         categoriesByName.set(key, categoryId);
       }
 
@@ -165,29 +211,27 @@ export async function importMenuFromSpreadsheet(formData: FormData): Promise<Imp
         },
       });
 
+      const commonData = {
+        description: row.description,
+        price: row.price,
+        imageUrl: row.imageUrl,
+        videoUrl: typeof row.videoUrl === "string" ? row.videoUrl || undefined : undefined,
+        ingredients: Array.isArray(row.ingredients) ? row.ingredients : [],
+      };
+
       if (existingProduct) {
         await db.product.update({
           where: { id: existingProduct.id },
-          data: {
-            description: row.description,
-            price: row.price,
-            imageUrl: row.imageUrl,
-            videoUrl: row.videoUrl,
-            ingredients: row.ingredients,
-          },
+          data: commonData,
         });
         productsUpdated++;
       } else {
         await db.product.create({
           data: {
             name: row.name,
-            description: row.description,
-            price: row.price,
-            imageUrl: row.imageUrl,
-            videoUrl: row.videoUrl,
-            ingredients: row.ingredients,
             menuCategoryId: categoryId,
             restaurantId: session.restaurantId,
+            ...commonData,
           },
         });
         productsCreated++;
@@ -195,8 +239,8 @@ export async function importMenuFromSpreadsheet(formData: FormData): Promise<Imp
     }
 
     return { ok: true, categoriesCreated, productsCreated, productsUpdated };
-  } catch (e) {
-    console.error(e);
+  } catch (error: unknown) {
+    console.error(error);
     return { ok: false, error: "Falha ao processar a planilha" };
   }
 }

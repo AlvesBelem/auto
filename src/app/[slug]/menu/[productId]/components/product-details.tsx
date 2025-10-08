@@ -3,7 +3,6 @@
 import { Prisma } from "@prisma/client";
 import { ChefHatIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
-import { normalizeImageSrc } from "@/lib/images";
 import { useContext, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
+import { normalizeImageSrc } from "@/lib/images";
 
 import CartSheet from "../../components/cart-sheet";
 import { CartContext } from "../../contexts/cart";

@@ -1337,41 +1337,41 @@ export { Extensions }
 
 declare namespace Extensions_2 {
     export {
-        InternalArgs,
+        AllModelsToStringIndex,
+        ClientBuiltInProp,
+        ClientOptionDef,
+        ClientOtherOps,
         DefaultArgs,
-        GetPayloadResultExtensionKeys,
-        GetPayloadResultExtensionObject,
-        GetPayloadResult,
-        GetSelect,
-        GetOmit,
+        DevTypeMapDef,
+        DevTypeMapFnDef,
+        DynamicClientExtensionArgs,
+        DynamicClientExtensionThis,
+        DynamicClientExtensionThisBuiltin,
+        DynamicModelExtensionArgs,
+        DynamicModelExtensionFluentApi,
+        DynamicModelExtensionFnResult,
+        DynamicModelExtensionFnResultBase,
+        DynamicModelExtensionFnResultNull,
+        DynamicModelExtensionOperationFn,
+        DynamicModelExtensionThis,
         DynamicQueryExtensionArgs,
         DynamicQueryExtensionCb,
         DynamicQueryExtensionCbArgs,
         DynamicQueryExtensionCbArgsArgs,
         DynamicResultExtensionArgs,
-        DynamicResultExtensionNeeds,
         DynamicResultExtensionData,
-        DynamicModelExtensionArgs,
-        DynamicModelExtensionThis,
-        DynamicModelExtensionOperationFn,
-        DynamicModelExtensionFnResult,
-        DynamicModelExtensionFnResultBase,
-        DynamicModelExtensionFluentApi,
-        DynamicModelExtensionFnResultNull,
-        DynamicClientExtensionArgs,
-        DynamicClientExtensionThis,
-        ClientBuiltInProp,
-        DynamicClientExtensionThisBuiltin,
+        DynamicResultExtensionNeeds,
         ExtendsHook,
+        GetOmit,
+        GetPayloadResult,
+        GetPayloadResultExtensionKeys,
+        GetPayloadResultExtensionObject,
+        GetSelect,
+        InternalArgs,
         MergeExtArgs,
-        AllModelsToStringIndex,
-        TypeMapDef,
-        DevTypeMapDef,
-        DevTypeMapFnDef,
-        ClientOptionDef,
-        ClientOtherOps,
-        TypeMapCbDef,
         ModelKey,
+        TypeMapCbDef,
+        TypeMapDef,
         RequiredExtensionArgs as UserArgs
     }
 }
@@ -2490,12 +2490,11 @@ export { Public }
 declare namespace Public_2 {
     export {
         Args,
-        Result,
+        Exact,
+        Operation,
         Payload,
         PrismaPromise,
-        Operation,
-        Exact
-    }
+        Result    }
 }
 
 declare type Query = {
@@ -2569,7 +2568,7 @@ declare type QueryEngineLogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error'
 
 declare type QueryEngineRequest = {
     query: string;
-    variables: Object;
+    variables: object;
 };
 
 declare type QueryEngineResultData<T> = {
@@ -2759,24 +2758,23 @@ export declare type Result_2<T, A, F extends Operation> = Result<T, A, F>;
 
 declare namespace Result_3 {
     export {
-        Operation,
-        FluentOperation,
-        Count,
-        GetFindResult,
-        SelectablePayloadFields,
-        SelectField,
-        DefaultSelection,
-        UnwrapPayload,
-        ApplyOmit,
-        OmitValue,
-        GetCountResult,
         Aggregate,
+        ApplyOmit,
+        Count,
+        DefaultSelection,
+        ExtractGlobalOmit,
+        FluentOperation,
         GetAggregateResult,
         GetBatchResult,
+        GetCountResult,
+        GetFindResult,
         GetGroupByResult,
         GetResult,
-        ExtractGlobalOmit
-    }
+        OmitValue,
+        Operation,
+        SelectablePayloadFields,
+        SelectField,
+        UnwrapPayload    }
 }
 
 declare type Result_4<T> = {
@@ -3234,9 +3232,9 @@ declare interface Transaction extends Queryable {
 
 declare namespace Transaction_2 {
     export {
+        InteractiveTransactionInfo,
         IsolationLevel,
         Options,
-        InteractiveTransactionInfo,
         TransactionHeaders
     }
 }
@@ -3281,16 +3279,15 @@ export declare type TypeMapDef = Record<any, any>;
 
 declare namespace Types {
     export {
-        Result_3 as Result,
         Extensions_2 as Extensions,
-        Utils,
-        Public_2 as Public,
         isSkip,
+        OperationPayload as Payload,
+        Public_2 as Public,
+        Result_3 as Result,
         Skip,
         skip,
         UnknownTypedSql,
-        OperationPayload as Payload
-    }
+        Utils    }
 }
 export { Types }
 
@@ -3326,37 +3323,36 @@ declare type UserArgs_2 = any;
 
 declare namespace Utils {
     export {
-        EmptyToUnknown,
-        NeverToUnknown,
-        PatchFlat,
-        Omit_2 as Omit,
-        Pick_2 as Pick,
-        ComputeDeep,
-        Compute,
-        OptionalFlat,
-        ReadonlyDeep,
-        Narrowable,
-        Narrow,
-        Exact,
-        Cast,
-        Record_2 as Record,
-        UnwrapPromise,
-        UnwrapTuple,
-        Path,
-        Fn,
         Call,
-        RequiredKeys,
-        OptionalKeys,
-        Optional,
-        Return,
-        ToTuple,
-        RenameAndNestPayloadKeys,
-        PayloadToResult,
-        Select,
+        Cast,
+        Compute,
+        ComputeDeep,
+        EmptyToUnknown,
         Equals,
+        Exact,
+        Fn,
+        JsPromise,
+        Narrow,
+        Narrowable,
+        NeverToUnknown,
+        Omit_2 as Omit,
+        Optional,
+        OptionalFlat,
+        OptionalKeys,
         Or,
-        JsPromise
-    }
+        PatchFlat,
+        Path,
+        PayloadToResult,
+        Pick_2 as Pick,
+        ReadonlyDeep,
+        Record_2 as Record,
+        RenameAndNestPayloadKeys,
+        RequiredKeys,
+        Return,
+        Select,
+        ToTuple,
+        UnwrapPromise,
+        UnwrapTuple    }
 }
 
 declare function validator<V>(): <S>(select: Exact<S, V>) => S;

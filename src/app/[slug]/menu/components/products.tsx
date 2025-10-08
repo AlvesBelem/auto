@@ -17,15 +17,17 @@ import {
 import { formatCurrency } from "@/helpers/format-currency";
 import { normalizeImageSrc } from "@/lib/images";
 
+type ProductWithVideo = Product & { videoUrl?: string | null };
+
 interface ProductsProps {
-  products: Array<Product & { videoUrl?: string | null }>;
+  products: ProductWithVideo[];
 }
 
 const Products = ({ products }: ProductsProps) => {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const consumptionMethod = searchParams.get("consumptionMethod");
-  const [videoProduct, setVideoProduct] = useState<Product | null>(null);
+  const [videoProduct, setVideoProduct] = useState<ProductWithVideo | null>(null);
 
   const buildEmbedSrc = useMemo(() => (url?: string | null) => {
     if (!url) return null;

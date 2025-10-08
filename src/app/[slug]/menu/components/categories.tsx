@@ -23,9 +23,6 @@ interface RestaurantCategoriesProps {
   }>;
 }
 
-type MenuCategoriesWithProducts = Prisma.MenuCategoryGetPayload<{
-  include: { products: true };
-}>;
 
 const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
   const { products, total, toggleCart, totalQuantity } = useContext(CartContext);

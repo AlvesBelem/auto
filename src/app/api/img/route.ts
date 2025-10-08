@@ -23,8 +23,8 @@ export async function GET(request: Request) {
     if (!contentType.startsWith("image/")) {
       return NextResponse.json({ error: "not an image" }, { status: 400 });
     }
-    const blob = await upstream.arrayBuffer();
-    const res = new NextResponse(Buffer.from(blob), {
+    const data = await upstream.arrayBuffer();
+    const res = new NextResponse(data, {
       headers: {
         "content-type": contentType,
         "cache-control": "public, max-age=3600, s-maxage=3600",
@@ -32,8 +32,7 @@ export async function GET(request: Request) {
       status: 200,
     });
     return res;
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "fetch failed" }, { status: 500 });
   }
 }
-

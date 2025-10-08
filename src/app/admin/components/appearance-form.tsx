@@ -7,7 +7,6 @@ import {
   UploadIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { normalizeImageSrc } from "@/lib/images";
 import {
   useCallback,
   useMemo,
@@ -21,13 +20,6 @@ import { z } from "zod";
 import { updateAppearance } from "@/app/admin/actions/appearance";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -37,6 +29,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { normalizeImageSrc } from "@/lib/images";
 
 const hexColorRegex = /^#[0-9a-fA-F]{6}$/;
 

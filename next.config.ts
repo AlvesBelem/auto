@@ -13,6 +13,7 @@ const baseHosts = [
   "i1.wp.com",
   "i2.wp.com",
   "i3.wp.com",
+  "encrypted-tbn0.gstatic.com",
 ];
 
 // Permite adicionar hosts via variável de ambiente (separados por vírgula).
@@ -30,6 +31,8 @@ const nextConfig: NextConfig = {
       protocol: "https" as const,
       hostname,
     })),
+    // For Next versions and tooling expecting 'domains', keep it too.
+    domains: uniqueHosts,
   },
 };
 
