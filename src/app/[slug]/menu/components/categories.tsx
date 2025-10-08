@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { Prisma } from "@prisma/client";
-import { ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon,ClockIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -43,7 +43,7 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
 
   return (
     <div className="relative z-50 mt-[-1.5rem] rounded-t-3xl bg-card shadow-xl">
-      <div className="p-5">
+      <div className="p-6 md:p-8">
         <div className="flex items-center gap-3">
           <Image
             src={restaurant.avatarImageUrl}
@@ -116,9 +116,15 @@ const CategoryCarousel = ({
     node.scrollTo({ left: target, behavior: "smooth" });
   };
 
+  // Garante que o carrossel inicie totalmente à esquerda
+  useEffect(() => {
+    const node = scrollerRef.current;
+    if (node) node.scrollTo({ left: 0, behavior: "auto" });
+  }, []);
+
   return (
     <section className="relative">
-      <div className="flex items-center justify-between px-5">
+      <div className="flex items-center justify-between px-6 md:px-8">
         <h3 className="text-lg font-semibold text-foreground">{category.name}</h3>
         <div className="hidden gap-2 md:flex">
           <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollPage(-1)}>
@@ -130,8 +136,13 @@ const CategoryCarousel = ({
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <div ref={scrollerRef} className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 snap-x snap-mandatory">
+      <div
+        ref={scrollerRef}
+        className="w-full overflow-x-auto snap-x snap-mandatory px-6 md:px-8 scrollbar-on-hover"
+        // Alinha o snap com o padding lateral, evitando offset inicial
+        style={{ scrollPaddingLeft: "1.5rem", scrollPaddingRight: "1.5rem" }}
+      >
+        <div className="flex w-max gap-3 md:gap-4 pt-3 pb-5">
           {category.products.map((product) => (
             <Link
               key={product.id}

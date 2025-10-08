@@ -48,3 +48,27 @@ body {
     @apply h-full;
   }
 }
+
+/* Scrollbar behavior: hidden by default, visible on hover */
+@layer utilities {
+  .scrollbar-on-hover {
+    -ms-overflow-style: none; /* IE and old Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-on-hover::-webkit-scrollbar {
+    height: 0px; /* Hide horizontal scrollbar (WebKit) */
+  }
+  .scrollbar-on-hover:hover {
+    scrollbar-width: thin; /* Show a thin scrollbar on hover (Firefox) */
+  }
+  .scrollbar-on-hover:hover::-webkit-scrollbar {
+    height: 8px; /* Show on hover (WebKit/Chromium) */
+  }
+  .scrollbar-on-hover:hover::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    border-radius: 9999px;
+  }
+  .scrollbar-on-hover:hover::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
