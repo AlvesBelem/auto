@@ -8,7 +8,6 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
 
 import { CartContext } from "../contexts/cart";
@@ -107,28 +106,14 @@ const CategoryCarousel = ({
   buildHref: (productId: string) => string;
 }) => {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const rootRef = useRef<HTMLDivElement | null>(null);
-
-  const attachRoot = (node: HTMLDivElement | null) => {
-    rootRef.current = node;
-  };
-
-  const getViewport = (): HTMLElement | null => {
-    const root = rootRef.current;
-    if (!root) return null;
-    const vp = root.querySelector(
-      "[data-radix-scroll-area-viewport]",
-    ) as HTMLElement | null;
-    return vp;
-  };
 
   const scrollPage = (dir: -1 | 1) => {
-    const vp = getViewport();
-    if (!vp) return;
-    const page = vp.clientWidth; // largura visível
-    const max = vp.scrollWidth - vp.clientWidth; // limite à direita
-    const target = Math.max(0, Math.min(max, vp.scrollLeft + dir * page));
-    vp.scrollTo({ left: target, behavior: "smooth" });
+    const node = scrollerRef.current;
+    if (!node) return;
+    const page = node.clientWidth; // largura visível
+    const max = node.scrollWidth - node.clientWidth; // limite à direita
+    const target = Math.max(0, Math.min(max, node.scrollLeft + dir * page));
+    node.scrollTo({ left: target, behavior: "smooth" });
   };
 
   return (
@@ -145,11 +130,8 @@ const CategoryCarousel = ({
         </div>
       </div>
 
-      <ScrollArea ref={attachRoot} className="w-full">
-        <div
-          ref={scrollerRef}
-          className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 snap-x snap-mandatory"
-        >
+      <div className="w-full overflow-x-auto">
+        <div ref={scrollerRef} className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 snap-x snap-mandatory">
           {category.products.map((product) => (
             <Link
               key={product.id}
@@ -177,8 +159,7 @@ const CategoryCarousel = ({
             </Link>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     </section>
   );
 };
