@@ -2,6 +2,7 @@
 
 import { Product } from "@prisma/client";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/images";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -85,7 +86,7 @@ const Products = ({ products }: ProductsProps) => {
           {/* DIREITA */}
           <div className="relative min-h-[82px] min-w-[120px]">
             <Image
-              src={product.imageUrl}
+              src={normalizeImageSrc(product.imageUrl)}
               alt={product.name}
               fill
               className="rounded-lg object-contain"

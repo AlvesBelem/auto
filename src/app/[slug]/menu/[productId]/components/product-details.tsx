@@ -3,6 +3,7 @@
 import { Prisma } from "@prisma/client";
 import { ChefHatIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/images";
 import { useContext, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
             <Image
-              src={product.restaurant.avatarImageUrl}
+              src={normalizeImageSrc(product.restaurant.avatarImageUrl)}
               alt={product.restaurant.name}
               width={16}
               height={16}

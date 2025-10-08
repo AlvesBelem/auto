@@ -7,6 +7,7 @@ import {
   UploadIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/images";
 import {
   useCallback,
   useMemo,
@@ -462,7 +463,7 @@ const AppearanceForm = ({
                                 </p>
                                 <div className="relative w-full h-40">
                                   <Image
-                                    src={form.watch(key)}
+                                    src={normalizeImageSrc(form.watch(key))}
                                     alt={label}
                                     fill
                                     className="object-contain rounded-md"
