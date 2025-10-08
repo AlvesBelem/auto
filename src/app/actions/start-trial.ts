@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import Stripe from "stripe";
 import { z } from "zod";
 
 import { hashPassword } from "@/lib/auth/password";
@@ -38,23 +37,9 @@ const ensureUniqueSlug = async (name: string) => {
 
 const resolveOrigin = () => {
   const originHeader = headers().get("origin");
-  if (originHeader) {
-    return originHeader;
-  }
-  if (process.env.APP_BASE_URL) {
-    return process.env.APP_BASE_URL;
-  }
+  if (originHeader) return originHeader;
+  if (process.env.APP_BASE_URL) return process.env.APP_BASE_URL;
   return "http://localhost:3000";
-};
-
-const mapStripeError = (error: unknown) => {
-  if (error instanceof Stripe.errors.StripeError) {
-    return error.message ?? "NÃƒÂ£o foi possÃƒÂ­vel iniciar o checkout no momento.";
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "NÃƒÂ£o foi possÃƒÂ­vel iniciar o checkout no momento.";
 };
 
 export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialResult> => {
@@ -63,7 +48,7 @@ export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialR
     const fieldErrors = Object.fromEntries(
       Object.entries(validation.error.flatten().fieldErrors).map(([key, value]) => [
         key,
-        value?.[0] ?? "Campo invÃƒÂ¡lido",
+        value?.[0] ?? "Campo inválido",
       ]),
     );
     return { ok: false, error: "Revise os campos destacados", fieldErrors };
@@ -71,16 +56,9 @@ export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialR
 
   const { ownerEmail, ownerName, password, restaurantDescription, restaurantName } = validation.data;
 
-  if (!process.env.STRIPE_SECRET_KEY) {
-    return { ok: false, error: "Stripe nÃƒÂ£o configurado. Informe STRIPE_SECRET_KEY." };
-  }
-  if (!process.env.STRIPE_RESTAURANT_PRICE_ID) {
-    return { ok: false, error: "Stripe nÃƒÂ£o configurado. Informe STRIPE_RESTAURANT_PRICE_ID." };
-  }
-
   const existingAdmin = await db.restaurantAdmin.findFirst({ where: { email: ownerEmail } });
   if (existingAdmin) {
-    return { ok: false, error: "Este e-mail jÃƒÂ¡ estÃƒÂ¡ vinculado a um restaurante." };
+    return { ok: false, error: "Este e-mail já está vinculado a um restaurante." };
   }
 
   const slug = await ensureUniqueSlug(restaurantName);
@@ -99,7 +77,8 @@ export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialR
       heroSubtitle: restaurantDescription,
       menuWelcomeTitle: "Bem-vindo ao auto-checkout",
       menuWelcomeMessage: "Personalize seu pedido e finalize em poucos cliques.",
-      subscriptionStatus: "PENDING",
+      subscriptionStatus: "TRIALING",
+      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       stripePriceId: process.env.STRIPE_RESTAURANT_PRICE_ID,
       admins: {
         create: {
@@ -111,42 +90,16 @@ export const startTrial = async (rawInput: StartTrialInput): Promise<StartTrialR
     },
   });
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-02-24.acacia",
+  // Cria sessão do admin e envia ao painel; cobrança será solicitada apenas ao fim do trial
+  const admin = await db.restaurantAdmin.findFirst({
+    where: { restaurantId: restaurant.id },
+    orderBy: { createdAt: "asc" },
   });
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      metadata: {
-        restaurantId: restaurant.id,
-        flow: "restaurant_onboarding",
-      },
-      subscription_data: {
-        trial_period_days: 7,
-        metadata: {
-          restaurantId: restaurant.id,
-        },
-      },
-      payment_method_types: ["card"],
-      customer_email: ownerEmail,
-      line_items: [
-        {
-          price: process.env.STRIPE_RESTAURANT_PRICE_ID,
-          quantity: 1,
-        },
-      ],
-      success_url: `${resolveOrigin()}/onboarding/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${resolveOrigin()}?checkout=cancelled`,
-    });
-
-    if (!session.url) {
-      throw new Error("Stripe nÃƒÂ£o retornou uma URL de checkout");
-    }
-
-    return { ok: true, checkoutUrl: session.url };
-  } catch (error) {
-    await db.restaurant.delete({ where: { id: restaurant.id } }).catch(() => undefined);
-    return { ok: false, error: mapStripeError(error) };
+  if (admin) {
+    const { createAdminSession } = await import("@/lib/auth/session");
+    await createAdminSession({ adminId: admin.id, restaurantId: restaurant.id });
   }
+
+  return { ok: true, checkoutUrl: `${resolveOrigin()}/admin` };
 };
+

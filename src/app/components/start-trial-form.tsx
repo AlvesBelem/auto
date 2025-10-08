@@ -61,7 +61,7 @@ const StartTrialForm = () => {
     <div className="rounded-3xl border border-white/20 bg-white/80 p-8 shadow-xl backdrop-blur text-slate-900">
       <div className="flex items-center gap-2 text-sm font-medium text-sky-800">
         <ShieldCheckIcon className="h-4 w-4 text-emerald-500" />
-        <span>Todos os recursos liberados por 7 dias</span>
+        <span>Todos os recursos liberados por 14 dias</span>
       </div>
       {errorMessage ? (
         <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -141,10 +141,10 @@ const StartTrialForm = () => {
             {isPending ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2Icon className="h-4 w-4 animate-spin" />
-                <span>Preparando checkout seguro...</span>
+                <span>Iniciando seu ambiente...</span>
               </span>
             ) : (
-              "Teste por 7 dias grÃ¡tis"
+              "Teste por 14 dias grátis
             )}
           </Button>
         </form>
