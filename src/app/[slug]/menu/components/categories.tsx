@@ -42,7 +42,7 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
   const welcomeMessage = restaurant.menuWelcomeMessage ?? restaurant.description;
 
   return (
-    <div className="relative z-50 mt-[-1.5rem] rounded-t-3xl bg-card shadow-xl">
+    <div className="relative z-50 -mt-3 md:-mt-4 rounded-t-3xl bg-card shadow-xl">
       <div className="p-6 md:p-8">
         <div className="flex items-center gap-3">
           <Image

@@ -48,7 +48,7 @@ const RestaurantHeader = ({ restaurant }: RestaurantHeaderProps) => {
     return () => clearInterval(id);
   }, [images.length]);
   return (
-    <div className="relative h-[260px] w-full overflow-hidden rounded-b-3xl">
+    <div className="relative h-[320px] md:h-[420px] w-full overflow-hidden rounded-b-3xl">
       <Button
         variant="secondary"
         size="icon"
