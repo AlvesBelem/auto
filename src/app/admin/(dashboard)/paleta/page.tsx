@@ -10,30 +10,35 @@ const PalettePage = async () => {
     return null;
   }
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold text-slate-900">Paleta de cores</h1>
-        <p className="text-sm text-slate-500">
-          Defina as cores principais utilizadas na landing, no totem e nas telas de pedidos.
-        </p>
+    <div className="w-full bg-slate-50 px-4 sm:px-6 py-8">
+      <div className="w-full max-w-none bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+        <div className="mb-8 sm:mb-10 text-center space-y-2">
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Paleta de cores</h1>
+          <p className="text-slate-500 max-w-md mx-auto">
+            Defina as cores principais utilizadas na landing, no totem e nas telas de pedidos.
+          </p>
+        </div>
+        <div className="w-full mt-4 sm:mt-6">
+          <AppearanceForm
+            initialValues={{
+              primaryColor: restaurant.primaryColor,
+              secondaryColor: restaurant.secondaryColor,
+              accentColor: restaurant.accentColor,
+              surfaceColor: restaurant.surfaceColor,
+              heroTitle: restaurant.heroTitle ?? "",
+              heroSubtitle: restaurant.heroSubtitle ?? "",
+              menuWelcomeTitle: restaurant.menuWelcomeTitle ?? "",
+              menuWelcomeMessage: restaurant.menuWelcomeMessage ?? "",
+              avatarImageUrl: restaurant.avatarImageUrl,
+              coverImageUrl: restaurant.coverImageUrl,
+            }}
+            showMessaging={false}
+            showImages={false}
+            showColors
+            asCard={false}
+          />
+        </div>
       </div>
-      <AppearanceForm
-        initialValues={{
-          primaryColor: restaurant.primaryColor,
-          secondaryColor: restaurant.secondaryColor,
-          accentColor: restaurant.accentColor,
-          surfaceColor: restaurant.surfaceColor,
-          heroTitle: restaurant.heroTitle ?? "",
-          heroSubtitle: restaurant.heroSubtitle ?? "",
-          menuWelcomeTitle: restaurant.menuWelcomeTitle ?? "",
-          menuWelcomeMessage: restaurant.menuWelcomeMessage ?? "",
-          avatarImageUrl: restaurant.avatarImageUrl,
-          coverImageUrl: restaurant.coverImageUrl,
-        }}
-        showMessaging={false}
-        showImages={false}
-        showColors
-      />
     </div>
   );
 };

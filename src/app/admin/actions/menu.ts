@@ -33,6 +33,16 @@ const isValidImageSource = (value: string) => {
   }
 };
 
+const isValidUrl = (value?: string) => {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+};
+
 const productSchema = z.object({
   menuCategoryId: z.string().uuid(),
   name: z.string().trim().min(3, "Nome muito curto"),
@@ -43,6 +53,7 @@ const productSchema = z.object({
     .trim()
     .refine(isValidImageSource, "Informe uma imagem valida"),
   ingredients: z.string().trim().optional(),
+  videoUrl: z.string().trim().optional().refine(isValidUrl, "Informe uma URL valida"),
 });
 
 const updateProductSchema = productSchema.extend({
@@ -135,6 +146,7 @@ export const createProduct = async (rawInput: z.infer<typeof productSchema>): Pr
       description: validation.data.description,
       price: validation.data.price,
       imageUrl: validation.data.imageUrl,
+      videoUrl: validation.data.videoUrl,
       menuCategoryId: category.id,
       restaurantId: session.restaurantId,
       ingredients: buildIngredients(validation.data.ingredients),
@@ -168,6 +180,7 @@ export const updateProduct = async (rawInput: z.infer<typeof updateProductSchema
       description: validation.data.description,
       price: validation.data.price,
       imageUrl: validation.data.imageUrl,
+      videoUrl: validation.data.videoUrl,
       menuCategoryId: category.id,
       ingredients: buildIngredients(validation.data.ingredients),
     },

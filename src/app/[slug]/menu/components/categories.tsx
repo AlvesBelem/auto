@@ -1,9 +1,11 @@
 "use client";
 
 import { Prisma } from "@prisma/client";
-import { ClockIcon } from "lucide-react";
+import { ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
-import { useContext, useState } from "react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { useContext, useMemo, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -11,7 +13,6 @@ import { formatCurrency } from "@/helpers/format-currency";
 
 import { CartContext } from "../contexts/cart";
 import CartSheet from "./cart-sheet";
-import Products from "./products";
 
 interface RestaurantCategoriesProps {
   restaurant: Prisma.RestaurantGetPayload<{
@@ -28,15 +29,15 @@ type MenuCategoriesWithProducts = Prisma.MenuCategoryGetPayload<{
 }>;
 
 const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
-  const [selectedCategory, setSelectedCategory] =
-    useState<MenuCategoriesWithProducts>(restaurant.menuCategories[0]);
   const { products, total, toggleCart, totalQuantity } = useContext(CartContext);
-  const handleCategoryClick = (category: MenuCategoriesWithProducts) => {
-    setSelectedCategory(category);
-  };
-  const getCategoryButtonVariant = (category: MenuCategoriesWithProducts) => {
-    return selectedCategory.id === category.id ? "default" : "secondary";
-  };
+  const { slug } = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const consumptionMethod = searchParams.get("consumptionMethod");
+
+  const buildProductHref = useMemo(
+    () => (productId: string) => `/${slug}/menu/${productId}?consumptionMethod=${consumptionMethod}`,
+    [slug, consumptionMethod],
+  );
 
   const welcomeTitle = restaurant.menuWelcomeTitle ?? restaurant.name;
   const welcomeMessage = restaurant.menuWelcomeMessage ?? restaurant.description;
@@ -63,25 +64,15 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
         </div>
       </div>
 
-      <ScrollArea className="w-full">
-        <div className="flex w-max space-x-4 p-4 pt-0">
-          {restaurant.menuCategories.map((category) => (
-            <Button
-              onClick={() => handleCategoryClick(category)}
-              key={category.id}
-              variant={getCategoryButtonVariant(category)}
-              size="sm"
-              className="rounded-full"
-            >
-              {category.name}
-            </Button>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-
-      <h3 className="px-5 pt-2 text-lg font-semibold text-foreground">{selectedCategory.name}</h3>
-      <Products products={selectedCategory.products} />
+      <div className="space-y-8">
+        {restaurant.menuCategories.map((category) => (
+          <CategoryCarousel
+            key={category.id}
+            category={category}
+            buildHref={buildProductHref}
+          />
+        ))}
+      </div>
 
       {products.length > 0 && (
         <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-border bg-card/95 px-5 py-3 shadow-2xl backdrop-blur">
@@ -105,3 +96,72 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
 };
 
 export default RestaurantCategories;
+
+type CategoryWithProducts = Prisma.MenuCategoryGetPayload<{ include: { products: true } }>;
+
+const CategoryCarousel = ({
+  category,
+  buildHref,
+}: {
+  category: CategoryWithProducts;
+  buildHref: (productId: string) => string;
+}) => {
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollByAmount = (dir: -1 | 1) => {
+    const node = scrollerRef.current;
+    if (!node) return;
+    const delta = dir * Math.round(node.clientWidth * 0.9);
+    node.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  return (
+    <section className="relative">
+      <div className="flex items-center justify-between px-5">
+        <h3 className="text-lg font-semibold text-foreground">{category.name}</h3>
+        <div className="hidden gap-2 md:flex">
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(-1)}>
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" className="rounded-xl" onClick={() => scrollByAmount(1)}>
+            <ChevronRightIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <ScrollArea className="w-full">
+        <div
+          ref={scrollerRef}
+          className="flex w-max gap-5 p-5 pt-3 pr-16 md:pr-5 overflow-x-auto snap-x snap-mandatory"
+        >
+          {category.products.map((product) => (
+            <Link
+              key={product.id}
+              href={buildHref(product.id)}
+              className="group relative w-[200px] h-[320px] md:w-[220px] md:h-[360px] shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md"
+            >
+              <div className="relative h-[200px] md:h-[220px] w-full">
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="160px"
+                />
+              </div>
+              <div className="flex h-[120px] md:h-[140px] flex-col justify-between p-3">
+                <div>
+                  <p className="line-clamp-2 text-sm font-semibold text-foreground">{product.name}</p>
+                  <p className="line-clamp-2 pt-1 text-xs text-muted-foreground">
+                    {Array.isArray(product.ingredients) ? product.ingredients.join(", ") : ""}
+                  </p>
+                </div>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(product.price)}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </section>
+  );
+};

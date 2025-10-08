@@ -10,39 +10,38 @@ const IdentityPage = async () => {
     where: { id: session.restaurantId },
   });
 
-  if (!restaurant) {
-    return null;
-  }
+  if (!restaurant) return null;
 
   return (
-    <div className="flex justify-center px-4 py-10">
-      <div className="w-full max-w-4xl space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Identidade visual
-          </h1>
-          <p className="text-sm text-slate-500">
-            Atualize textos e imagens que apresentam seu restaurante.
+    <div className="w-full bg-slate-50 px-4 sm:px-6 py-8">
+      <div className="w-full max-w-none bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+        <div className="mb-8 sm:mb-10 text-center space-y-2">
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Identidade Visual</h1>
+          <p className="text-slate-500 max-w-md mx-auto">
+            Atualize as cores, textos e imagens que representam o seu restaurante.
           </p>
         </div>
 
-        <AppearanceForm
-          initialValues={{
-            primaryColor: restaurant.primaryColor,
-            secondaryColor: restaurant.secondaryColor,
-            accentColor: restaurant.accentColor,
-            surfaceColor: restaurant.surfaceColor,
-            heroTitle: restaurant.heroTitle ?? "",
-            heroSubtitle: restaurant.heroSubtitle ?? "",
-            menuWelcomeTitle: restaurant.menuWelcomeTitle ?? "",
-            menuWelcomeMessage: restaurant.menuWelcomeMessage ?? "",
-            avatarImageUrl: restaurant.avatarImageUrl,
-            coverImageUrl: restaurant.coverImageUrl,
-          }}
-          showMessaging
-          showImages
-          showColors={false}
-        />
+        <div className="w-full mt-4 sm:mt-6">
+          <AppearanceForm
+            initialValues={{
+              primaryColor: restaurant.primaryColor,
+              secondaryColor: restaurant.secondaryColor,
+              accentColor: restaurant.accentColor,
+              surfaceColor: restaurant.surfaceColor,
+              heroTitle: restaurant.heroTitle ?? "",
+              heroSubtitle: restaurant.heroSubtitle ?? "",
+              menuWelcomeTitle: restaurant.menuWelcomeTitle ?? "",
+              menuWelcomeMessage: restaurant.menuWelcomeMessage ?? "",
+              avatarImageUrl: restaurant.avatarImageUrl,
+              coverImageUrl: restaurant.coverImageUrl,
+            }}
+            showMessaging
+            showImages
+            showColors={false}
+            asCard={false}
+          />
+        </div>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   SparklesIcon,
   UploadIcon,
 } from "lucide-react";
+import Image from "next/image";
 import {
   useCallback,
   useMemo,
@@ -28,7 +29,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 const hexColorRegex = /^#[0-9a-fA-F]{6}$/;
 
@@ -52,6 +52,7 @@ interface AppearanceFormProps {
   showMessaging?: boolean;
   showImages?: boolean;
   showColors?: boolean;
+  asCard?: boolean;
 }
 
 const colorFields: Array<{
@@ -126,6 +127,7 @@ const AppearanceForm = ({
   showMessaging = true,
   showImages = true,
   showColors = true,
+  asCard = true,
 }: AppearanceFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -163,14 +165,12 @@ const AppearanceForm = ({
   const handleFileChange = useCallback(
     async (field: "avatarImageUrl" | "coverImageUrl", fileList: FileList | null) => {
       const file = fileList?.[0];
-      if (!file) {
-        return;
-      }
+      if (!file) return;
       try {
         const dataUrl = await toBase64(file);
         form.setValue(field, dataUrl, { shouldDirty: true, shouldTouch: true });
       } catch {
-        setFeedback("Nao foi possivel carregar o arquivo selecionado.");
+        setFeedback("Não foi possível carregar o arquivo selecionado.");
       }
     },
     [form],
@@ -192,28 +192,18 @@ const AppearanceForm = ({
     });
   };
 
-  const heading = (() => {
-    if (showColors && !showMessaging && !showImages) {
-      return "Paleta de cores";
-    }
-    if ((showMessaging || showImages) && !showColors) {
-      return "Identidade visual";
-    }
-    return "Identidade visual";
-  })();
+  const heading = "Identidade visual";
+  const subtitle =
+    showColors && !showMessaging && !showImages
+      ? "Ajuste as cores principais usadas na landing, totem e pedidos."
+      : "Atualize textos, imagens e cores que apresentam seu restaurante.";
 
-  const subtitle = (() => {
-    if (showColors && !showMessaging && !showImages) {
-      return "Ajuste as cores principais usadas na landing, totem e pedidos.";
-    }
-    if ((showMessaging || showImages) && !showColors) {
-      return "Atualize textos e imagens que apresentam seu restaurante.";
-    }
-    return "Personalize mensagens, imagens e paleta exibidas para os clientes.";
-  })();
+  const containerClass = asCard
+    ? "w-full max-w-none space-y-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
+    : "w-full max-w-none space-y-6";
 
   return (
-    <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className={containerClass}>
       <div className="flex items-start gap-3 text-slate-600">
         <div className="rounded-xl bg-slate-900/5 p-2">
           <PaintbrushIcon className="h-5 w-5" />
@@ -224,15 +214,16 @@ const AppearanceForm = ({
         </div>
       </div>
 
-      {feedback ? (
+      {feedback && (
         <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {feedback}
         </p>
-      ) : null}
+      )}
 
       <Form {...form}>
         <form
-          className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]"
+          id="appearance-form"
+          className={`grid grid-cols-1 gap-6 lg:gap-8 ${showColors && (showMessaging || showImages) ? "lg:grid-cols-[minmax(0,1fr)_360px]" : ""}`}
           onSubmit={form.handleSubmit(handleSubmit)}
         >
           {(showMessaging || showImages) && (
@@ -249,7 +240,7 @@ const AppearanceForm = ({
                         name="heroTitle"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Titulo da landing</FormLabel>
+                            <FormLabel>Título da landing</FormLabel>
                             <FormControl>
                               <Input placeholder="Mensagem principal" {...field} />
                             </FormControl>
@@ -262,7 +253,7 @@ const AppearanceForm = ({
                         name="heroSubtitle"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Subtitulo da landing</FormLabel>
+                            <FormLabel>Subtítulo da landing</FormLabel>
                             <FormControl>
                               <Input placeholder="Complemento da mensagem" {...field} />
                             </FormControl>
@@ -276,7 +267,7 @@ const AppearanceForm = ({
                           name="menuWelcomeTitle"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Titulo no totem</FormLabel>
+                              <FormLabel>Título no totem</FormLabel>
                               <FormControl>
                                 <Input placeholder="Ex: Bem-vindo" {...field} />
                               </FormControl>
@@ -291,7 +282,7 @@ const AppearanceForm = ({
                             <FormItem>
                               <FormLabel>Mensagem no totem</FormLabel>
                               <FormControl>
-                                <Input placeholder="Orientacao inicial" {...field} />
+                                <Input placeholder="Orientação inicial" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -303,7 +294,7 @@ const AppearanceForm = ({
                 )}
 
                 {showImages && (
-                  <div className={cn(showMessaging ? "mt-6 grid gap-4 md:grid-cols-2" : "grid gap-4 md:grid-cols-2") }>
+                  <div className="mt-6 grid gap-6 md:grid-cols-2">
                     {fileFields.map(({ key, label, placeholder, helper }) => (
                       <FormField
                         key={key}
@@ -312,7 +303,9 @@ const AppearanceForm = ({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{label}</FormLabel>
-                            <FormDescription>{helper}</FormDescription>
+                            <FormDescription className="text-[13px] text-slate-500">
+                              {helper}
+                            </FormDescription>
                             <FormControl>
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                 <Input placeholder={placeholder} {...field} />
@@ -338,6 +331,23 @@ const AppearanceForm = ({
                                 />
                               </div>
                             </FormControl>
+
+                            {form.watch(key) && (
+                              <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                                <p className="text-sm text-slate-600 mb-2">
+                                  Pré-visualização:
+                                </p>
+                                <div className="relative w-full h-40">
+                                  <Image
+                                    src={form.watch(key)}
+                                    alt={label}
+                                    fill
+                                    className="object-contain rounded-md"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
                             <FormMessage />
                           </FormItem>
                         )}
@@ -350,13 +360,13 @@ const AppearanceForm = ({
           )}
 
           {showColors && (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 w-full lg:grid-cols-[minmax(0,1fr)_400px]">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                   Paleta de cores
                 </p>
                 <p className="mt-2 text-xs text-slate-500">
-                  Ajuste via seletor ou cole o codigo hexadecimal da sua marca.
+                  Ajuste via seletor ou cole o código hexadecimal da sua marca.
                 </p>
                 <div className="mt-4 space-y-4">
                   {colorFields.map(({ key, label, helper }) => (
@@ -406,11 +416,11 @@ const AppearanceForm = ({
                   color: previewTokens.surfaceText,
                 }}
               >
-                <p className="text-xs font-semibold uppercase tracking-widest opacity-80">
-                  Pre-visualizacao
+                <p className="text-sm font-semibold text-slate-800 mb-2">
+                  🎨 Pré-visualização da paleta
                 </p>
-                <p className="mt-2 text-xs opacity-80">
-                  Assim os componentes principais ficam com a paleta atual.
+                <p className="text-xs text-slate-500">
+                  Veja como os principais elementos vão aparecer usando as cores escolhidas.
                 </p>
                 <div className="mt-5 grid gap-3">
                   <div
@@ -429,7 +439,7 @@ const AppearanceForm = ({
                       color: getContrastColor(previewTokens.secondary),
                     }}
                   >
-                    Botao secundario
+                    Botão secundário
                   </div>
                   <div
                     className="rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-widest shadow-sm"
@@ -445,10 +455,17 @@ const AppearanceForm = ({
             </div>
           )}
 
-          <div className="lg:col-span-2 flex justify-end">
-            <Button disabled={isPending} type="submit">
-              {isPending ? "Salvando..." : "Salvar alteracoes"}
-            </Button>
+          <div className="lg:col-span-2 flex justify-center pt-6">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-white font-semibold text-base shadow transition"
+              style={{
+                backgroundColor: ensureHex(form.watch("primaryColor")),
+              }}
+            >
+              💾 {isPending ? "Salvando..." : "Salvar alterações"}
+            </button>
           </div>
         </form>
       </Form>
@@ -457,4 +474,3 @@ const AppearanceForm = ({
 };
 
 export default AppearanceForm;
-

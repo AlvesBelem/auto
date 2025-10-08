@@ -110,7 +110,7 @@ const DashboardShell = ({ children, restaurant, admin }: DashboardShellProps) =>
       <SidebarInset>
         {/* Topbar */}
         <header className="border-b border-slate-200 bg-white">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
+          <div className="mx-auto flex max-w-none items-center justify-between gap-4 px-4 py-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-3">
               {/* Desktop toggle */}
               <SidebarTrigger className="hidden md:inline-flex" />
@@ -204,7 +204,7 @@ const DashboardShell = ({ children, restaurant, admin }: DashboardShellProps) =>
         </header>
 
         {/* Main content */}
-        <main className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8 md:space-y-16 md:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-none space-y-12 px-4 py-8 md:space-y-16 md:px-6 lg:px-8">
           {children}
         </main>
       </SidebarInset>

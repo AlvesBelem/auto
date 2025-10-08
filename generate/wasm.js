@@ -179,6 +179,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   price: 'price',
   imageUrl: 'imageUrl',
+  videoUrl: 'videoUrl',
   ingredients: 'ingredients',
   restaurantId: 'restaurantId',
   menuCategoryId: 'menuCategoryId',

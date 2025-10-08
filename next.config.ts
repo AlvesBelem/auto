@@ -19,6 +19,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.seara.com.br", // <-- novo domínio adicionado aqui
       },
+      {
+        protocol: "https",
+        hostname: "marketplace.canva.com", // <-- novo domínio adicionado aqui
+      },
+      {
+        protocol: "https",
+        hostname: "www.searafoodsolutions.com.br", // <-- novo domínio adicionado aqui
+      },
     ],
   },
 };

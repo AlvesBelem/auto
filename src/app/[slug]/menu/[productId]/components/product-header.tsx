@@ -17,7 +17,7 @@ const ProductHeader = ({ product }: ProductHeaderProps) => {
   const handleBackClick = () => router.back();
   const handleOrdersClick = () => router.push(`/${slug}/orders`);
   return (
-    <div className="relative min-h-[300px] w-full">
+    <div className="relative min-h-[360px] w-full bg-muted">
       <Button
         variant="secondary"
         size="icon"
@@ -31,8 +31,9 @@ const ProductHeader = ({ product }: ProductHeaderProps) => {
         src={product.imageUrl}
         alt={product.name}
         fill
-        className="object-contain"
+        className="object-cover"
       />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-transparent" />
 
       <Button
         variant="secondary"

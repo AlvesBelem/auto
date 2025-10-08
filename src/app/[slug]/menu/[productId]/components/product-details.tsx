@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Prisma } from "@prisma/client";
 import { ChefHatIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
@@ -6,6 +6,13 @@ import Image from "next/image";
 import { useContext, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
 
@@ -22,12 +29,35 @@ interface ProductDetailsProps {
         };
       };
     };
-  }>;
+  }> & { videoUrl?: string | null };
 }
 
 const ProductDetails = ({ product }: ProductDetailsProps) => {
   const { toggleCart, addProduct } = useContext(CartContext);
   const [quantity, setQuantity] = useState<number>(1);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const buildEmbedSrc = (url?: string | null) => {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      const host = u.hostname.replace("www.", "");
+      if (host.includes("youtube.com")) {
+        const id = u.searchParams.get("v");
+        return id ? `https://www.youtube.com/embed/${id}` : url;
+      }
+      if (host === "youtu.be") {
+        const id = u.pathname.slice(1);
+        return id ? `https://www.youtube.com/embed/${id}` : url;
+      }
+      if (host.includes("vimeo.com")) {
+        const id = u.pathname.split("/").filter(Boolean).pop();
+        return id ? `https://player.vimeo.com/video/${id}` : url;
+      }
+      return url;
+    } catch {
+      return url ?? null;
+    }
+  };
   const handleDecreaseQuantity = () => {
     setQuantity((prev) => {
       if (prev === 1) {
@@ -48,7 +78,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
   };
   return (
     <>
-      <div className="relative z-50 mt-[-1.5rem] flex flex-auto flex-col overflow-hidden rounded-t-3xl p-5">
+      <div className="relative z-50 mt-[-1.5rem] flex flex-auto flex-col overflow-hidden rounded-t-3xl bg-card p-5">
         <div className="flex-auto overflow-hidden">
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
@@ -65,25 +95,24 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           </div>
 
           {/* NOME DO PRODUTO */}
-          <h2 className="mt-1 text-xl font-semibold">{product.name}</h2>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">{product.name}</h2>
 
-          {/* PREÇO E QUANTIDADE */}
-          <div className="mt-3 flex items-center justify-between">
-            <h3 className="text-xl font-semibold">
+          {/* PREÃ‡O E QUANTIDADE */}
+          <div className="mt-4 flex items-center justify-between">
+            <h3 className="text-2xl font-semibold">
               {formatCurrency(product.price)}
             </h3>
             <div className="flex items-center gap-3 text-center">
               <Button
                 variant="outline"
-                className="h-8 w-8 rounded-xl"
+                className="h-9 w-9 rounded-xl"
                 onClick={handleDecreaseQuantity}
               >
                 <ChevronLeftIcon />
               </Button>
-              <p className="w-4">{quantity}</p>
+              <p className="min-w-[1.5rem] text-base">{quantity}</p>
               <Button
-                variant="destructive"
-                className="h-8 w-8 rounded-xl"
+                className="h-9 w-9 rounded-xl"
                 onClick={handleIncreaseQuantity}
               >
                 <ChevronRightIcon />
@@ -100,17 +129,58 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
               </p>
             </div>
 
+            {product.videoUrl ? (
+              <div className="mt-6">
+                <Drawer open={videoOpen} onOpenChange={setVideoOpen}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline" className="w-full rounded-xl">Ver vídeo do preparo</Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="h-[70vh]">
+                    <DrawerHeader>
+                      <DrawerTitle>vídeo: {product.name}</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="p-4">
+                      {(() => {
+                        const embed = buildEmbedSrc(product.videoUrl);
+                        const isMp4 = typeof embed === "string" && embed.endsWith(".mp4");
+                        if (isMp4) {
+                          return (
+                            <video src={embed ?? undefined} controls className="h-[50vh] w-full rounded-xl bg-black" />
+                          );
+                        }
+                        return (
+                          <div className="relative mx-auto aspect-video w-full max-w-3xl">
+                            <iframe
+                              src={embed ?? undefined}
+                              className="h-full w-full rounded-xl"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              </div>
+            ) : null}
+
             {/* INGREDIENTS */}
             <div className="mt-6 space-y-3">
-              <div className="5 flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <ChefHatIcon size={18} />
                 <h4 className="font-semibold">Ingredientes</h4>
               </div>
-              <ul className="text-muted-fo list-disc px-5 text-sm text-muted-foreground">
+              <div className="flex flex-wrap gap-2">
                 {product.ingredients.map((ingredient) => (
-                  <li key={ingredient}>{ingredient}</li>
+                  <span
+                    key={ingredient}
+                    className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground"
+                  >
+                    {ingredient}
+                  </span>
                 ))}
-              </ul>
+              </div>
             </div>
           </ScrollArea>
         </div>
@@ -125,3 +195,5 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
 };
 
 export default ProductDetails;
+
+

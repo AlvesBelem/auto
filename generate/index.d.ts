@@ -6328,6 +6328,7 @@ export namespace Prisma {
     description: string | null
     price: number | null
     imageUrl: string | null
+    videoUrl: string | null
     restaurantId: string | null
     menuCategoryId: string | null
     createdAt: Date | null
@@ -6340,6 +6341,7 @@ export namespace Prisma {
     description: string | null
     price: number | null
     imageUrl: string | null
+    videoUrl: string | null
     restaurantId: string | null
     menuCategoryId: string | null
     createdAt: Date | null
@@ -6352,6 +6354,7 @@ export namespace Prisma {
     description: number
     price: number
     imageUrl: number
+    videoUrl: number
     ingredients: number
     restaurantId: number
     menuCategoryId: number
@@ -6375,6 +6378,7 @@ export namespace Prisma {
     description?: true
     price?: true
     imageUrl?: true
+    videoUrl?: true
     restaurantId?: true
     menuCategoryId?: true
     createdAt?: true
@@ -6387,6 +6391,7 @@ export namespace Prisma {
     description?: true
     price?: true
     imageUrl?: true
+    videoUrl?: true
     restaurantId?: true
     menuCategoryId?: true
     createdAt?: true
@@ -6399,6 +6404,7 @@ export namespace Prisma {
     description?: true
     price?: true
     imageUrl?: true
+    videoUrl?: true
     ingredients?: true
     restaurantId?: true
     menuCategoryId?: true
@@ -6499,6 +6505,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl: string | null
     ingredients: string[]
     restaurantId: string
     menuCategoryId: string
@@ -6531,6 +6538,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     imageUrl?: boolean
+    videoUrl?: boolean
     ingredients?: boolean
     restaurantId?: boolean
     menuCategoryId?: boolean
@@ -6548,6 +6556,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     imageUrl?: boolean
+    videoUrl?: boolean
     ingredients?: boolean
     restaurantId?: boolean
     menuCategoryId?: boolean
@@ -6563,6 +6572,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     imageUrl?: boolean
+    videoUrl?: boolean
     ingredients?: boolean
     restaurantId?: boolean
     menuCategoryId?: boolean
@@ -6578,6 +6588,7 @@ export namespace Prisma {
     description?: boolean
     price?: boolean
     imageUrl?: boolean
+    videoUrl?: boolean
     ingredients?: boolean
     restaurantId?: boolean
     menuCategoryId?: boolean
@@ -6585,7 +6596,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "imageUrl" | "ingredients" | "restaurantId" | "menuCategoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "imageUrl" | "videoUrl" | "ingredients" | "restaurantId" | "menuCategoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     orderProducts?: boolean | Product$orderProductsArgs<ExtArgs>
     restaurant?: boolean | RestaurantDefaultArgs<ExtArgs>
@@ -6614,6 +6625,7 @@ export namespace Prisma {
       description: string
       price: number
       imageUrl: string
+      videoUrl: string | null
       ingredients: string[]
       restaurantId: string
       menuCategoryId: string
@@ -7050,6 +7062,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Product", 'String'>
     readonly price: FieldRef<"Product", 'Float'>
     readonly imageUrl: FieldRef<"Product", 'String'>
+    readonly videoUrl: FieldRef<"Product", 'String'>
     readonly ingredients: FieldRef<"Product", 'String[]'>
     readonly restaurantId: FieldRef<"Product", 'String'>
     readonly menuCategoryId: FieldRef<"Product", 'String'>
@@ -9857,6 +9870,7 @@ export namespace Prisma {
     description: 'description',
     price: 'price',
     imageUrl: 'imageUrl',
+    videoUrl: 'videoUrl',
     ingredients: 'ingredients',
     restaurantId: 'restaurantId',
     menuCategoryId: 'menuCategoryId',
@@ -10392,6 +10406,7 @@ export namespace Prisma {
     description?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     imageUrl?: StringFilter<"Product"> | string
+    videoUrl?: StringNullableFilter<"Product"> | string | null
     ingredients?: StringNullableListFilter<"Product">
     restaurantId?: StringFilter<"Product"> | string
     menuCategoryId?: StringFilter<"Product"> | string
@@ -10408,6 +10423,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     imageUrl?: SortOrder
+    videoUrl?: SortOrderInput | SortOrder
     ingredients?: SortOrder
     restaurantId?: SortOrder
     menuCategoryId?: SortOrder
@@ -10427,6 +10443,7 @@ export namespace Prisma {
     description?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     imageUrl?: StringFilter<"Product"> | string
+    videoUrl?: StringNullableFilter<"Product"> | string | null
     ingredients?: StringNullableListFilter<"Product">
     restaurantId?: StringFilter<"Product"> | string
     menuCategoryId?: StringFilter<"Product"> | string
@@ -10443,6 +10460,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     imageUrl?: SortOrder
+    videoUrl?: SortOrderInput | SortOrder
     ingredients?: SortOrder
     restaurantId?: SortOrder
     menuCategoryId?: SortOrder
@@ -10464,6 +10482,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Product"> | string
     price?: FloatWithAggregatesFilter<"Product"> | number
     imageUrl?: StringWithAggregatesFilter<"Product"> | string
+    videoUrl?: StringNullableWithAggregatesFilter<"Product"> | string | null
     ingredients?: StringNullableListFilter<"Product">
     restaurantId?: StringWithAggregatesFilter<"Product"> | string
     menuCategoryId?: StringWithAggregatesFilter<"Product"> | string
@@ -11040,6 +11059,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -11054,6 +11074,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     restaurantId: string
     menuCategoryId: string
@@ -11068,6 +11089,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11082,6 +11104,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     restaurantId?: StringFieldUpdateOperationsInput | string
     menuCategoryId?: StringFieldUpdateOperationsInput | string
@@ -11096,6 +11119,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     restaurantId: string
     menuCategoryId: string
@@ -11109,6 +11133,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11120,6 +11145,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     restaurantId?: StringFieldUpdateOperationsInput | string
     menuCategoryId?: StringFieldUpdateOperationsInput | string
@@ -11720,6 +11746,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     imageUrl?: SortOrder
+    videoUrl?: SortOrder
     ingredients?: SortOrder
     restaurantId?: SortOrder
     menuCategoryId?: SortOrder
@@ -11737,6 +11764,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     imageUrl?: SortOrder
+    videoUrl?: SortOrder
     restaurantId?: SortOrder
     menuCategoryId?: SortOrder
     createdAt?: SortOrder
@@ -11749,6 +11777,7 @@ export namespace Prisma {
     description?: SortOrder
     price?: SortOrder
     imageUrl?: SortOrder
+    videoUrl?: SortOrder
     restaurantId?: SortOrder
     menuCategoryId?: SortOrder
     createdAt?: SortOrder
@@ -12726,6 +12755,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12739,6 +12769,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     menuCategoryId: string
     createdAt?: Date | string
@@ -12900,6 +12931,7 @@ export namespace Prisma {
     description?: StringFilter<"Product"> | string
     price?: FloatFilter<"Product"> | number
     imageUrl?: StringFilter<"Product"> | string
+    videoUrl?: StringNullableFilter<"Product"> | string | null
     ingredients?: StringNullableListFilter<"Product">
     restaurantId?: StringFilter<"Product"> | string
     menuCategoryId?: StringFilter<"Product"> | string
@@ -13291,6 +13323,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -13304,6 +13337,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     restaurantId: string
     createdAt?: Date | string
@@ -13845,6 +13879,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -13858,6 +13893,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     restaurantId: string
     menuCategoryId: string
@@ -13915,6 +13951,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13928,6 +13965,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     restaurantId?: StringFieldUpdateOperationsInput | string
     menuCategoryId?: StringFieldUpdateOperationsInput | string
@@ -14001,6 +14039,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     menuCategoryId: string
     createdAt?: Date | string
@@ -14104,6 +14143,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14117,6 +14157,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     menuCategoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14130,6 +14171,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     menuCategoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14176,6 +14218,7 @@ export namespace Prisma {
     description: string
     price: number
     imageUrl: string
+    videoUrl?: string | null
     ingredients?: ProductCreateingredientsInput | string[]
     restaurantId: string
     createdAt?: Date | string
@@ -14188,6 +14231,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14201,6 +14245,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     restaurantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14214,6 +14259,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     imageUrl?: StringFieldUpdateOperationsInput | string
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: ProductUpdateingredientsInput | string[]
     restaurantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

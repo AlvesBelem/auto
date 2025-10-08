@@ -87,6 +87,7 @@ model Product {
   description    String
   price          Float
   imageUrl       String
+  videoUrl       String?
   ingredients    String[]
   orderProducts  OrderProduct[]
   restaurant     Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
