@@ -33,10 +33,10 @@ const formSchema = z.object({
     .string()
     .trim()
     .min(1, {
-      message: "O CPF é obrigatório.",
+      message: "O CPF Ã© obrigatÃ³rio.",
     })
     .refine((value) => isValidCpf(value), {
-      message: "CPF inválido.",
+      message: "CPF invÃ¡lido.",
     }),
 });
 
@@ -85,7 +85,7 @@ const CpfForm = () => {
               )}
             />
             <DrawerFooter>
-              <Button variant="destructive" className="w-full rounded-full">
+              <Button variant="default" className="w-full rounded-full">
                 Confirmar
               </Button>
               <DrawerClose asChild>

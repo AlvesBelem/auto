@@ -18,7 +18,7 @@ const CartProductItem = ({ product }: CartItemProps) => {
     <div className="flex items-center justify-between">
       {/* ESQUERDA */}
       <div className="flex items-center gap-3">
-        <div className="relative h-20 w-20 rounded-xl bg-gray-100">
+        <div className="relative h-20 w-20 rounded-xl bg-muted">
           <Image src={product.imageUrl} alt={product.name} fill />
         </div>
         <div className="space-y-1">
@@ -40,7 +40,7 @@ const CartProductItem = ({ product }: CartItemProps) => {
             <p className="w-7 text-xs">{product.quantity}</p>
             <Button
               className="h-7 w-7 rounded-lg"
-              variant="destructive"
+              variant="default"
               onClick={() => increaseProductQuantity(product.id)}
             >
               <ChevronRightIcon />
@@ -48,7 +48,7 @@ const CartProductItem = ({ product }: CartItemProps) => {
           </div>
         </div>
       </div>
-      {/* BOTÃO DE DELETAR */}
+      {/* BOTÃƒO DE DELETAR */}
       <Button
         className="h-7 w-7 rounded-lg"
         variant="outline"

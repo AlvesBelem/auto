@@ -1,27 +1,51 @@
+import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
+
 import { db } from "@/lib/prisma";
+import { getRestaurantThemeVariables } from "@/lib/theme";
 
 import { isValidCpf, removeCpfPunctuation } from "../menu/helpers/cpf";
 import CpfForm from "./components/cpf-form";
 import OrderList from "./components/order-list";
 
 interface OrdersPageProps {
-  searchParams: Promise<{ cpf: string }>;
+  params: { slug: string };
+  searchParams: Promise<{ cpf?: string }>;
 }
 
-const OrdersPage = async ({ searchParams }: OrdersPageProps) => {
+const OrdersPage = async ({ params, searchParams }: OrdersPageProps) => {
+  const { slug } = params;
   const { cpf } = await searchParams;
-  if (!cpf) {
-    return <CpfForm />;
+  const restaurant = await db.restaurant.findUnique({ where: { slug } });
+  if (!restaurant) {
+    return notFound();
   }
-  if (!isValidCpf(cpf)) {
-    return <CpfForm />;
+
+  const theme = getRestaurantThemeVariables({
+    primaryColor: restaurant.primaryColor,
+    secondaryColor: restaurant.secondaryColor,
+    accentColor: restaurant.accentColor,
+    surfaceColor: restaurant.surfaceColor,
+  });
+
+  if (!cpf || !isValidCpf(cpf)) {
+    return (
+      <div className="min-h-screen bg-background" style={theme as CSSProperties}>
+        <CpfForm />
+      </div>
+    );
   }
+
+  const sanitizedCpf = removeCpfPunctuation(cpf);
   const orders = await db.order.findMany({
     orderBy: {
       createdAt: "desc",
     },
     where: {
-      customerCpf: removeCpfPunctuation(cpf),
+      customerCpf: sanitizedCpf,
+      restaurant: {
+        slug,
+      },
     },
     include: {
       restaurant: {
@@ -37,7 +61,11 @@ const OrdersPage = async ({ searchParams }: OrdersPageProps) => {
       },
     },
   });
-  return <OrderList orders={orders} />;
+  return (
+    <div className="min-h-screen bg-background" style={theme as CSSProperties}>
+      <OrderList orders={orders} />
+    </div>
+  );
 };
 
 export default OrdersPage;

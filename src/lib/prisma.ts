@@ -1,19 +1,34 @@
+import "server-only";
+
+import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
+
+if (!process.env.DATABASE_URL) {
+  loadEnvConfig(process.cwd());
+}
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("Missing DATABASE_URL environment variable.");
+}
 
 declare global {
   // eslint-disable-next-line no-var
-  var cachedPrisma: PrismaClient;
+  var cachedPrisma: PrismaClient | undefined;
 }
 
-let prisma: PrismaClient;
-if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
-} else {
-  if (!global.cachedPrisma) {
-    global.cachedPrisma = new PrismaClient();
-  }
-  prisma = global.cachedPrisma;
-}
+const prismaClient = () =>
+  new PrismaClient({
+    datasources: {
+      db: {
+        url: databaseUrl,
+      },
+    },
+  });
 
-// vou usar para chamar meu banco de dados
+const prisma =
+  process.env.NODE_ENV === "production"
+    ? prismaClient()
+    : (global.cachedPrisma ??= prismaClient());
+
 export const db = prisma;

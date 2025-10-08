@@ -1,9 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    remotePatterns: [{ hostname: "u9a6wmr3as.ufs.sh" }],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "u9a6wmr3as.ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "s2-oglobo.glbimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.seara.com.br", // <-- novo domínio adicionado aqui
+      },
+    ],
   },
 };
 

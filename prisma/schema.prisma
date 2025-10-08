@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generate"
 }
 
 datasource db {
@@ -14,17 +15,60 @@ datasource db {
 }
 
 model Restaurant {
-  id             String         @id @default(uuid())
-  name           String
-  slug           String         @unique
-  description    String
-  avatarImageUrl String
-  coverImageUrl  String
-  menuCategories MenuCategory[]
-  products       Product[]
-  orders         Order[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id                   String                     @id @default(uuid())
+  name                 String
+  slug                 String                     @unique
+  description          String
+  avatarImageUrl       String
+  coverImageUrl        String
+  ownerName            String?
+  ownerEmail           String?
+  heroTitle            String?
+  heroSubtitle         String?
+  primaryColor         String                     @default("#FFB703")
+  secondaryColor       String                     @default("#FB8500")
+  accentColor          String                     @default("#023047")
+  surfaceColor         String                     @default("#FFF8F0")
+  menuWelcomeTitle     String?
+  menuWelcomeMessage   String?
+  stripeCustomerId     String?                    @unique
+  stripeSubscriptionId String?                    @unique
+  stripePriceId        String?
+  subscriptionStatus   SubscriptionStatus         @default(PENDING)
+  trialEndsAt          DateTime?
+  planActivatedAt      DateTime?
+  admins               RestaurantAdmin[]
+  galleryImages        RestaurantGalleryImage[]
+  menuCategories       MenuCategory[]
+  products             Product[]
+  orders               Order[]
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+}
+
+model RestaurantAdmin {
+  id           String     @id @default(uuid())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId String
+  email        String
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([restaurantId, email])
+}
+
+model RestaurantGalleryImage {
+  id           String     @id @default(uuid())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId String
+  imageUrl     String
+  title        String?
+  description  String?
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model MenuCategory {
@@ -91,3 +135,12 @@ enum ConsumptionMethod {
   TAKEAWAY
   DINE_IN
 }
+
+enum SubscriptionStatus {
+  PENDING
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
