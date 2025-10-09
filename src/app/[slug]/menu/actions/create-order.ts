@@ -3,7 +3,7 @@
 
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ConsumptionMethod } from "../../../../../generate";
+import { ConsumptionMethod, Product } from "@prisma/client";
 import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf";
 
 interface CreateOrderInput {
@@ -19,6 +19,7 @@ interface CreateOrderInput {
 
 export const createOrder = async (input: CreateOrderInput) => {
   const trimmedName = input.customerName.trim();
+
   if (!trimmedName) {
     throw new Error("Customer name is required");
   }
@@ -38,18 +39,24 @@ export const createOrder = async (input: CreateOrderInput) => {
     throw new Error("Cart is empty");
   }
 
-  if (input.products.some((product) => product.quantity <= 0)) {
+  // ✅ Tipagem explícita para o parâmetro do .some()
+  if (
+    input.products.some(
+      (product: CreateOrderInput["products"][number]) =>
+        product.quantity <= 0,
+    )
+  ) {
     throw new Error("All products must have quantity greater than zero");
   }
 
   const restaurant = await db.restaurant.findUnique({
-    where: {
-      slug: input.slug,
-    },
+    where: { slug: input.slug },
   });
+
   if (!restaurant) {
     throw new Error("Restaurant not found");
   }
+
   const productsWithPrices = await db.product.findMany({
     where: {
       id: {
@@ -57,27 +64,40 @@ export const createOrder = async (input: CreateOrderInput) => {
       },
     },
   });
-  const priceByProductId = new Map(
-    productsWithPrices.map((product) => [product.id, product.price]),
+
+  // ✅ Tipagem explícita no .map()
+  const priceByProductId = new Map<string, number>(
+    productsWithPrices.map((product: Product) => [
+      product.id,
+      Number(product.price),
+    ]),
   );
 
+  // ✅ Tipagem explícita no .find()
   const missingProduct = input.products.find(
-    (product) => !priceByProductId.has(product.id),
+    (product: CreateOrderInput["products"][number]) =>
+      !priceByProductId.has(product.id),
   );
 
   if (missingProduct) {
     throw new Error(`Product ${missingProduct.id} is no longer available`);
   }
 
-  const productsWithPricesAndQuantities = input.products.map((product) => ({
-    productId: product.id,
-    quantity: product.quantity,
-    price: priceByProductId.get(product.id)!,
-  }));
+  // ✅ Tipagem explícita no .map()
+  const productsWithPricesAndQuantities = input.products.map(
+    (product: CreateOrderInput["products"][number]) => ({
+      productId: product.id,
+      quantity: product.quantity,
+      price: priceByProductId.get(product.id)!,
+    }),
+  );
 
   const sanitizedCpf = removeCpfPunctuation(input.customerCpf);
+
+  // ✅ Conversão numérica para evitar TS2362
   const orderTotal = productsWithPricesAndQuantities.reduce(
-    (acc, product) => acc + product.price * product.quantity,
+    (acc: number, product) =>
+      acc + Number(product.price) * Number(product.quantity),
     0,
   );
 
@@ -96,9 +116,9 @@ export const createOrder = async (input: CreateOrderInput) => {
       restaurantId: restaurant.id,
     },
   });
+
+  // Atualiza cache da página de pedidos
   revalidatePath(`/${input.slug}/orders`);
-  // redirect(
-  //   `/${input.slug}/orders?cpf=${removeCpfPunctuation(input.customerCpf)}`,
-  // );
+
   return order;
 };

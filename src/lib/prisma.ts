@@ -1,6 +1,6 @@
 import "server-only";
 
-import { PrismaClient } from "../../generate";
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   var cachedPrisma: PrismaClient | undefined;

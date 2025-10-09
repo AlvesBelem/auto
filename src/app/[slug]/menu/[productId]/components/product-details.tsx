@@ -1,5 +1,6 @@
 "use client";
 
+import type { Prisma } from "@prisma/client";
 import { ChefHatIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useContext, useState } from "react";
@@ -16,7 +17,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
 import { normalizeImageSrc } from "@/lib/images";
 
-import type { Prisma } from "../../../../../../generate";
 import CartSheet from "../../components/cart-sheet";
 import { CartContext } from "../../contexts/cart";
 
