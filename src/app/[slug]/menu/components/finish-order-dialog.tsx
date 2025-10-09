@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ConsumptionMethod } from "@prisma/client";
+type ConsumptionMethod = "DINE_IN" | "TAKEAWAY";
 import { loadStripe } from "@stripe/stripe-js";
 import { Loader2Icon } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";

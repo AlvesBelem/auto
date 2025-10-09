@@ -1,6 +1,5 @@
-﻿"use client";
+"use client";
 
-import { Prisma } from "@prisma/client";
 import { ChefHatIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useContext, useState } from "react";
@@ -17,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatCurrency } from "@/helpers/format-currency";
 import { normalizeImageSrc } from "@/lib/images";
 
+import type { Prisma } from "../../../../../../generate";
 import CartSheet from "../../components/cart-sheet";
 import { CartContext } from "../../contexts/cart";
 
@@ -98,7 +98,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
           {/* NOME DO PRODUTO */}
           <h2 className="mt-2 text-2xl font-semibold tracking-tight">{product.name}</h2>
 
-          {/* PREÃ‡O E QUANTIDADE */}
+          {/* PREÇO E QUANTIDADE */}
           <div className="mt-4 flex items-center justify-between">
             <h3 className="text-2xl font-semibold">
               {formatCurrency(product.price)}
@@ -134,11 +134,11 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
               <div className="mt-6">
                 <Drawer open={videoOpen} onOpenChange={setVideoOpen}>
                   <DrawerTrigger asChild>
-                    <Button variant="outline" className="w-full rounded-xl">Ver vídeo do preparo</Button>
+                    <Button variant="outline" className="w-full rounded-xl">Ver v�deo do preparo</Button>
                   </DrawerTrigger>
                   <DrawerContent className="h-[70vh]">
                     <DrawerHeader>
-                      <DrawerTitle>vídeo: {product.name}</DrawerTitle>
+                      <DrawerTitle>v�deo: {product.name}</DrawerTitle>
                     </DrawerHeader>
                     <div className="p-4">
                       {(() => {
@@ -187,7 +187,7 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
         </div>
 
         <Button className="w-full rounded-full" onClick={handleAddToCart}>
-          Adicionar à sacola
+          Adicionar � sacola
         </Button>
       </div>
       <CartSheet />

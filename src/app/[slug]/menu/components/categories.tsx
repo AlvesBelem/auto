@@ -1,7 +1,6 @@
 ﻿"use client";
 
-import { Prisma } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon,ClockIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ClockIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -10,8 +9,10 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/helpers/format-currency";
 
+import type { Prisma } from "../../../../../generate";
 import { CartContext } from "../contexts/cart";
 import CartSheet from "./cart-sheet";
+
 
 interface RestaurantCategoriesProps {
   restaurant: Prisma.RestaurantGetPayload<{
@@ -171,4 +172,9 @@ const CategoryCarousel = ({
     </section>
   );
 };
+
+
+
+
+
 

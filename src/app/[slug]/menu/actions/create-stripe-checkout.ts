@@ -1,11 +1,10 @@
 "use server";
-
-import { ConsumptionMethod } from "@prisma/client";
-import { headers } from "next/headers";
-import Stripe from "stripe";
+/* eslint-disable simple-import-sort/imports */
 
 import { db } from "@/lib/prisma";
-
+import { headers } from "next/headers";
+import Stripe from "stripe";
+import type { ConsumptionMethod } from "../../../../../generate";
 import { CartProduct } from "../contexts/cart";
 import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf";
 
@@ -94,4 +93,3 @@ export const createStripeCheckout = async ({
 
   return { sessionId: session.id };
 };
-

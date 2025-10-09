@@ -9,16 +9,17 @@ import CpfForm from "./components/cpf-form";
 import OrderList from "./components/order-list";
 
 interface OrdersPageProps {
-  params: { slug: string };
-  searchParams?: { cpf?: string };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ cpf?: string }>;
 }
 
 const OrdersPage = async ({
   params,
-  searchParams = {},
+  searchParams,
 }: OrdersPageProps) => {
-  const { slug } = params;
-  const { cpf } = searchParams;
+  const { slug } = await params;
+  const sp = searchParams ? await searchParams : undefined;
+  const cpf = sp?.cpf;
   const restaurant = await db.restaurant.findUnique({ where: { slug } });
   if (!restaurant) {
     return notFound();

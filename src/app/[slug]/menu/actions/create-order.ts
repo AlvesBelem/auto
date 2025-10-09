@@ -1,10 +1,9 @@
 "use server";
-
-import { ConsumptionMethod } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+/* eslint-disable simple-import-sort/imports */
 
 import { db } from "@/lib/prisma";
-
+import { revalidatePath } from "next/cache";
+import { ConsumptionMethod } from "../../../../../generate";
 import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf";
 
 interface CreateOrderInput {

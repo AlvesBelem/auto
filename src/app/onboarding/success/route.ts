@@ -1,12 +1,13 @@
-import {
-  type Prisma,
-  SubscriptionStatus,
-} from "@prisma/client";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 import { createAdminSession } from "@/lib/auth/session";
 import { db } from "@/lib/prisma";
+
+import {
+  type Prisma,
+  SubscriptionStatus,
+} from "../../../../generate";
 
 const stripeClient = () => {
   if (!process.env.STRIPE_SECRET_KEY) {
