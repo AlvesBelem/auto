@@ -1,6 +1,6 @@
 "use server";
 
-import { ConsumptionMethod } from "@prisma/client";
+import type { ConsumptionMethod } from "../../../../../generate";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 
@@ -94,4 +94,3 @@ export const createStripeCheckout = async ({
 
   return { sessionId: session.id };
 };
-

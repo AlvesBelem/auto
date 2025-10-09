@@ -1,6 +1,6 @@
 "use server";
 
-import { ConsumptionMethod } from "@prisma/client";
+import { ConsumptionMethod } from "../../../../../generate";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/prisma";

@@ -1,4 +1,4 @@
-import { ConsumptionMethod } from "@prisma/client";
+type ConsumptionMethod = "DINE_IN" | "TAKEAWAY";
 import Image from "next/image";
 import Link from "next/link";
 
