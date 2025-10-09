@@ -3,7 +3,6 @@ import "server-only";
 import { PrismaClient } from "../../generate";
 
 declare global {
-  // eslint-disable-next-line no-var
   var cachedPrisma: PrismaClient | undefined;
 }
 
