@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
-import { Prisma } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon,ClockIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, ClockIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -10,8 +9,10 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/helpers/format-currency";
 
+import type { Prisma } from "../../../../../generate";
 import { CartContext } from "../contexts/cart";
 import CartSheet from "./cart-sheet";
+
 
 interface RestaurantCategoriesProps {
   restaurant: Prisma.RestaurantGetPayload<{
@@ -107,13 +108,13 @@ const CategoryCarousel = ({
   const scrollPage = (dir: -1 | 1) => {
     const node = scrollerRef.current;
     if (!node) return;
-    const page = node.clientWidth; // largura visÃ­vel
-    const max = node.scrollWidth - node.clientWidth; // limite Ã  direita
+    const page = node.clientWidth; // largura visível
+    const max = node.scrollWidth - node.clientWidth; // limite à direita
     const target = Math.max(0, Math.min(max, node.scrollLeft + dir * page));
     node.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  // Garante que o carrossel inicie totalmente à esquerda
+  // Garante que o carrossel inicie totalmente � esquerda
   useEffect(() => {
     const node = scrollerRef.current;
     if (node) node.scrollTo({ left: 0, behavior: "auto" });
@@ -171,4 +172,8 @@ const CategoryCarousel = ({
     </section>
   );
 };
+
+
+
+
 
