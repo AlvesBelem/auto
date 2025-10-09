@@ -4,7 +4,7 @@
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import Stripe from "stripe";
-import type { ConsumptionMethod } from "../../../../../generate";
+import type { ConsumptionMethod, Product } from "@prisma/client";
 import { CartProduct } from "../contexts/cart";
 import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf";
 
@@ -41,21 +41,30 @@ export const createStripeCheckout = async ({
     process.env.APP_BASE_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
     "http://localhost:3000";
+
   const baseUrl = originHeader.replace(/\/$/, "");
 
+  // ✅ Busca preços do banco com tipagem segura
   const productsWithPrices = await db.product.findMany({
     where: {
       id: {
-        in: products.map((product) => product.id),
+        in: products.map((product: CartProduct) => product.id),
       },
     },
   });
 
-  const priceByProductId = new Map(
-    productsWithPrices.map((product) => [product.id, product.price]),
+  // ✅ Tipagem explícita de Product e conversão numérica segura
+  const priceByProductId = new Map<string, number>(
+    productsWithPrices.map((product: Product) => [
+      product.id,
+      Number(product.price),
+    ]),
   );
 
-  const missingProduct = products.find((product) => !priceByProductId.has(product.id));
+  // ✅ Tipagem explícita no find()
+  const missingProduct = products.find(
+    (product: CartProduct) => !priceByProductId.has(product.id),
+  );
 
   if (missingProduct) {
     throw new Error(`Product ${missingProduct.id} is no longer available`);
@@ -70,6 +79,7 @@ export const createStripeCheckout = async ({
   const sanitizedCpf = removeCpfPunctuation(cpf);
   searchParams.set("cpf", sanitizedCpf);
 
+  // ✅ Tipagem explícita e Number() no cálculo (corrige TS2362)
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -78,14 +88,14 @@ export const createStripeCheckout = async ({
     metadata: {
       orderId: String(orderId),
     },
-    line_items: products.map((product) => ({
+    line_items: products.map((product: CartProduct) => ({
       price_data: {
         currency: "brl",
         product_data: {
           name: product.name,
           images: product.imageUrl ? [product.imageUrl] : undefined,
         },
-        unit_amount: Math.round(priceByProductId.get(product.id)! * 100),
+        unit_amount: Math.round(Number(priceByProductId.get(product.id)) * 100),
       },
       quantity: product.quantity,
     })),

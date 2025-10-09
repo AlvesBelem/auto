@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import type { Prisma } from "@prisma/client";
 import { ChevronLeftIcon, ChevronRightIcon, ClockIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +10,6 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/helpers/format-currency";
 
-import type { Prisma } from "../../../../../generate";
 import { CartContext } from "../contexts/cart";
 import CartSheet from "./cart-sheet";
 
