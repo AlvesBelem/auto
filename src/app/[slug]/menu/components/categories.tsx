@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ChevronLeftIcon, ChevronRightIcon, ClockIcon } from "lucide-react";
 import Image from "next/image";
@@ -108,13 +108,13 @@ const CategoryCarousel = ({
   const scrollPage = (dir: -1 | 1) => {
     const node = scrollerRef.current;
     if (!node) return;
-    const page = node.clientWidth; // largura visível
-    const max = node.scrollWidth - node.clientWidth; // limite à direita
+    const page = node.clientWidth; // largura visÃ­vel
+    const max = node.scrollWidth - node.clientWidth; // limite Ã  direita
     const target = Math.max(0, Math.min(max, node.scrollLeft + dir * page));
     node.scrollTo({ left: target, behavior: "smooth" });
   };
 
-  // Garante que o carrossel inicie totalmente � esquerda
+  // Garante que o carrossel inicie totalmente à esquerda
   useEffect(() => {
     const node = scrollerRef.current;
     if (node) node.scrollTo({ left: 0, behavior: "auto" });
@@ -172,6 +172,7 @@ const CategoryCarousel = ({
     </section>
   );
 };
+
 
 
 
