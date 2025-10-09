@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@prisma/client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -17,6 +17,7 @@ import {
 import { formatCurrency } from "@/helpers/format-currency";
 import { normalizeImageSrc } from "@/lib/images";
 
+import type { Product } from "../../../../../generate";
 type ProductWithVideo = Product & { videoUrl?: string | null };
 
 interface ProductsProps {
